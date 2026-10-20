@@ -1,0 +1,31 @@
+/* Manual phone / desktop switch: floating button + preview frame (see js_src/viewmode.js) */
+.viewmode { position: fixed; right: 14px; bottom: 14px; z-index: 1000; font-family: var(--app-font, inherit); }
+.viewmode-toggle {
+  display: grid; place-items: center; width: 48px; height: 48px; padding: 0;
+  border: 1px solid var(--line); border-radius: 50%;
+  background: var(--navy, #002158); color: #fff; font-size: 22px; line-height: 1;
+  box-shadow: 0 4px 14px rgba(0, 20, 60, .35); cursor: pointer;
+}
+.viewmode-toggle:hover { background: var(--tpm-blue, #00519b); }
+.viewmode-menu {
+  position: absolute; right: 0; bottom: 58px; min-width: 190px; padding: 6px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface, #fff); color: var(--text, #222);
+  box-shadow: 0 10px 30px rgba(0, 20, 60, .3);
+}
+.viewmode-menu[hidden] { display: none; }
+.viewmode-option {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px;
+  border: 0; border-radius: 6px; background: transparent; color: inherit; font-size: 14px; text-align: left; cursor: pointer;
+}
+.viewmode-option:hover { background: var(--green-pale, #e2ecf8); }
+.viewmode-option[aria-checked="true"] { background: var(--navy, #002158); color: #fff; font-weight: 700; }
+
+.mobile-preview { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; background: #0d1626; }
+.mobile-preview iframe {
+  width: 430px; max-width: 100%; height: min(920px, calc(100vh - 28px));
+  border: 10px solid #000; border-radius: 34px; background: #fff; box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+}
+body.mobile-preview-on { overflow: hidden; }
+body.mobile-preview-on > .app-shell,
+body.mobile-preview-on > .modal-backdrop,
+body.mobile-preview-on > .toast { display: none !important; }
