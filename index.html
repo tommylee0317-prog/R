@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="runlog-demo" content="1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#002158">
+  <title>RUNLOG｜個人賽事成績</title>
+  <link rel="icon" type="image/png" href="src/runlog-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800&family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css_src/styles.css">
+  <link rel="stylesheet" href="css_src/challenge.css">
+  <link rel="stylesheet" href="css_src/sports-theme.css">
+  <link rel="stylesheet" href="css_src/text-scale.css">
+  <link rel="stylesheet" href="css_src/taipei.css">
+  <link rel="stylesheet" href="css_src/appearance.css">
+  <link rel="stylesheet" href="css_src/person.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#dashboard" aria-label="RUNLOG 首頁">
+        <span class="brand-mark"><img src="src/runlog-logo.png" alt="" width="30" height="30"></span>
+        <span class="brand-name">RUN<span>LOG</span><small>PERSONAL RACE JOURNAL</small></span>
+      </a>
+      <div class="nav-label">工作區</div>
+      <nav class="main-nav" aria-label="主要導覽">
+        <button class="nav-item active" data-view="dashboard"><span class="nav-icon">◫</span>總覽 Dashboard</button>
+        <button class="nav-item" data-view="records"><span class="nav-icon">▤</span>賽事紀錄</button>
+        <button class="nav-item" data-view="analytics"><span class="nav-icon">⌁</span>成績分析</button>
+        <button class="nav-item" data-view="paceCalculator"><span class="nav-icon">◷</span>配速計算器</button>
+        <button class="nav-item" data-view="raceList"><span class="nav-icon">♧</span>可參加賽事</button>
+        <button class="nav-item" data-view="people"><span class="nav-icon">☺</span>人員管理</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-note"><span class="note-dot"></span><span>每一場，都是新的里程碑。</span></div>
+        <div class="profile">
+          <div class="avatar" id="profileAvatar">T</div>
+          <div class="profile-info"><strong id="profileName">Tommy</strong><small>馬拉松挑戰者</small></div>
+        </div>
+        <div class="person-switch">
+          <label class="person-switch-label" for="personSelect">切換人員</label>
+          <div class="person-switch-row">
+            <select id="personSelect" aria-label="切換人員" disabled><option value="">載入人員中…</option></select>
+            <button type="button" class="person-add" id="addPersonButton" aria-label="新增人員（開啟人員管理）" title="新增人員">＋</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="mobile-menu icon-button" id="mobileMenu" aria-label="開啟選單">☰</button>
+        <div class="breadcrumb"><span>RUNLOG</span><i>/</i><strong id="breadcrumbCurrent">總覽</strong></div>
+        <div class="top-actions">
+          <div class="appearance-wrap">
+            <button class="icon-button appearance-button" id="appearanceButton" aria-label="外觀設定" aria-haspopup="true" aria-expanded="false" aria-controls="appearancePanel" title="字型、大小與顏色">Aa</button>
+            <div class="appearance-panel" id="appearancePanel" role="dialog" aria-label="外觀設定" hidden>
+              <div class="appearance-head"><strong>外觀設定</strong><button type="button" class="appearance-reset" id="appearanceReset">全部還原</button></div>
+              <div class="appearance-row"><label for="fontSelect">字型</label>
+                <select id="fontSelect">
+                  <option value="default">預設（思源黑體）</option>
+                  <option value="jhenghei">微軟正黑體</option>
+                  <option value="system">系統字型</option>
+                  <option value="serif">思源宋體</option>
+                  <option value="mono">等寬字型</option>
+                </select></div>
+              <div class="appearance-row"><label for="fontSizeRange">字體大小</label>
+                <div class="appearance-size"><button type="button" class="size-step" data-size-step="-5" aria-label="縮小">A−</button><input type="range" id="fontSizeRange" min="80" max="140" step="5"><button type="button" class="size-step" data-size-step="5" aria-label="放大">A＋</button><output id="fontSizeValue" for="fontSizeRange">100%</output></div></div>
+              <div class="appearance-row"><span class="appearance-title">主題色</span>
+                <div class="appearance-swatches"><span id="accentSwatches" class="appearance-swatches"></span><label class="appearance-color">自訂 <input type="color" id="accentColor" aria-label="自訂主題色"></label></div></div>
+              <div class="appearance-row"><span class="appearance-title">文字顏色</span>
+                <div class="appearance-color"><input type="color" id="textColor" aria-label="文字顏色"><button type="button" class="appearance-reset" id="textColorReset">使用預設</button></div></div>
+              <p class="appearance-preview" id="appearancePreview">預覽：Tommy 全馬 3:35:00 PB 🏃</p>
+            </div>
+          </div>
+          <button class="icon-button theme-toggle" id="themeToggle" aria-label="切換深色模式" title="切換深色／淺色模式"><span id="themeIcon">◐</span></button>
+          <button class="button button-primary top-add" id="topAddButton" aria-label="新增賽事"><span>＋</span> <span class="top-add-label">新增賽事</span></button>
+        </div>
+      </header>
+      <section class="view active" id="dashboardView">
+        <div class="page-heading">
+          <div><div class="eyebrow"><span class="eyebrow-line"></span><span id="journalEyebrow">TOMMY'S RUNNING JOURNAL</span></div><h1 id="welcomeHeading">Tommy，繼續向前。</h1><p>每一次訓練、每一場完賽，都讓下一個目標更靠近。</p></div>
+          <div class="heading-date"><span class="date-mark">◷</span><span id="todayLabel"></span></div>
+        </div>
+
+        <section class="hero-card challenge-hero">
+          <div class="hero-copy challenge-copy"><span class="hero-kicker"><span class="challenge-pulse"></span> <span id="challengeKicker">TOMMY'S MARATHON CHALLENGE</span></span><h2>目標在前方，<br>下一步由你<span>決定。</span></h2><p>從半馬到全馬，從第一次起跑到刷新 PB。<br>把日常的堅持，跑成值得驕傲的 42.195 公里。</p><button class="button button-light" id="heroAddButton">記錄我的里程碑 <span>↗</span></button><div class="hero-motto"><span>01</span> 每一步，都在成就更強大的自己</div></div>
+          <div class="hero-art challenge-art"><img class="sports-runner-image" src="src/runlog-runner-white.png" alt="奔跑中的人物圖示"><div class="challenge-distance"><span>THE DISTANCE</span><strong>42<span>.195</span></strong><small>KILOMETRES TO YOUR NEXT STORY</small></div><div class="challenge-caption">SHOW UP. <b>KEEP GOING.</b></div></div>
+          <span class="rainbow-spectrum" aria-hidden="true"></span>
+          <span class="hero-index" id="heroIndex">TOMMY · 2026</span>
+        </section>
+
+        <div class="section-heading"><div><span class="section-kicker">PERSONAL BEST</span><h2>個人最佳成績</h2></div><span class="muted-caption">依賽事距離分組</span></div>
+        <div class="pb-grid">
+          <article class="pb-card full-card"><div class="pb-top"><div class="distance-icon full-icon">42</div><div><span class="pb-label">FULL MARATHON</span><h3>全馬 <span>42.195 KM</span></h3></div><span class="pb-badge">PB</span></div><div class="pb-time" id="fullPbTime">--:--:--</div><div class="pb-footer"><span id="fullPbMeta">尚無完賽紀錄</span><span class="pb-arrow">↗</span></div></article>
+          <article class="pb-card half-card"><div class="pb-top"><div class="distance-icon half-icon">21</div><div><span class="pb-label">HALF MARATHON</span><h3>半馬 <span>21.0975 KM</span></h3></div><span class="pb-badge">PB</span></div><div class="pb-time" id="halfPbTime">--:--:--</div><div class="pb-footer"><span id="halfPbMeta">尚無完賽紀錄</span><span class="pb-arrow">↗</span></div></article>
+        </div>
+
+        <div class="section-heading stats-heading"><div><span class="section-kicker">YOUR MILESTONES</span><h2>累計統計</h2></div><span class="muted-caption">從第一場開始累積</span></div>
+        <div class="stats-grid">
+          <article class="stat-card"><div class="stat-top"><span>全馬完賽</span><span class="stat-icon peach">↗</span></div><div class="stat-value"><strong id="fullCount">0</strong><span>場</span></div><div class="stat-foot">42.195 KM 每一公里都不簡單</div></article>
+          <article class="stat-card"><div class="stat-top"><span>半馬完賽</span><span class="stat-icon mint">↗</span></div><div class="stat-value"><strong id="halfCount">0</strong><span>場</span></div><div class="stat-foot">21.0975 KM 持續突破自己</div></article>
+          <article class="stat-card distance-stat"><div class="stat-top"><span>累積賽事里程</span><span class="stat-icon blue">⌁</span></div><div class="stat-value"><strong id="totalDistance">0</strong><span>KM</span></div><div class="stat-foot">每一段路，都是你的故事</div></article>
+        </div>
+
+        <div class="section-heading recent-heading"><div><span class="section-kicker">RECENT RACES</span><h2>近期賽事</h2></div><button class="text-button" data-go="records">查看全部 <span>→</span></button></div>
+        <div class="recent-card" id="recentRaces"></div>
+
+        <footer class="page-footer"><span>RUNLOG <b>·</b> YOUR PERSONAL RACE JOURNAL</span><span>每一次完賽，都是一次新的開始。</span></footer>
+      </section>
+
+      <section class="view" id="recordsView">
+        <div class="page-heading compact-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span>RACE ARCHIVE</div><h1>賽事紀錄</h1><p>收藏每一次起跑與抵達終點的時刻。</p></div><button class="button button-primary" id="recordsAddButton">＋ 新增賽事</button></div>
+        <div class="records-toolbar"><div class="filter-pills" role="group" aria-label="距離篩選"><button class="filter-pill selected" data-filter="all">全部 <span id="allFilterCount">0</span></button><button class="filter-pill" data-filter="full">全馬</button><button class="filter-pill" data-filter="half">半馬</button></div><div class="table-tools"><label class="search-box"><span>⌕</span><input type="search" id="searchInput" placeholder="搜尋賽事或地點" aria-label="搜尋賽事或地點"></label><button class="button button-outline" id="importButton">⇧ 匯入 Excel</button><button class="button button-outline" id="exportButton">⇩ 匯出 Excel</button><input type="file" id="importFile" accept=".xlsx,.xls,.csv" hidden></div></div>
+        <div class="workbook-sync-status" id="apiStatus" role="status" aria-live="polite">正在連線 Oracle 資料庫…</div>
+        <div class="records-summary"><span id="recordsSummary">共 0 場賽事</span><span class="records-sort">依日期排序 <span>↓</span></span></div>
+        <div class="table-wrap"><table class="records-table"><thead><tr><th>賽事名稱</th><th>日期</th><th>距離組別</th><th>完賽時間</th><th>平均配速</th><th>地點</th><th><span class="sr-only">操作</span></th></tr></thead><tbody id="recordsBody"></tbody></table><div class="empty-state table-empty" id="recordsEmpty"><div class="empty-icon">↗</div><h3>第一場賽事，從這裡開始</h3><p>新增你的全馬或半馬完賽紀錄，讓每一步努力都被好好收藏。</p><button class="button button-primary" id="emptyAddButton">＋ 新增賽事</button></div></div>
+        <footer class="page-footer"><span>RUNLOG <b>·</b> YOUR PERSONAL RACE JOURNAL</span><span>賽事紀錄儲存於 Oracle；Excel 可用於匯入或備份匯出。</span></footer>
+      </section>
+
+      <section class="view" id="analyticsView">
+        <div class="page-heading compact-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span>PERFORMANCE INSIGHTS</div><h1>成績分析</h1><p>從每一筆完賽紀錄，看見自己的累積與進步。</p></div><label class="year-select-wrap"><span>分析年度</span><select id="analyticsYear"><option value="all">全部年度</option></select></label></div>
+        <div class="analytics-kpis"><article class="analytics-kpi"><span>完賽場次</span><strong id="analyticsRaces">0 <small>場</small></strong></article><article class="analytics-kpi"><span>累積距離</span><strong id="analyticsDistance">0 <small>KM</small></strong></article><article class="analytics-kpi"><span>平均完賽配速</span><strong id="analyticsPace">--:-- <small>/KM</small></strong></article><article class="analytics-kpi"><span>今年參賽</span><strong id="analyticsThisYear">0 <small>場</small></strong></article></div>
+        <div class="chart-grid"><article class="chart-card trend-card"><div class="chart-heading"><div><span class="section-kicker">AVERAGE PACE</span><h2>平均配速趨勢</h2></div><div class="chart-legend"><span class="legend-dot full-legend"></span>全馬<span class="legend-dot half-legend"></span>半馬</div></div><div class="chart-area" id="trendChart"></div><div class="chart-footnote">每公里配速越低，代表速度越快。</div></article><article class="chart-card breakdown-card"><div class="chart-heading"><div><span class="section-kicker">RACE MIX</span><h2>賽事距離分布</h2></div></div><div class="donut-wrap"><div class="donut-chart" id="donutChart"><div class="donut-center"><strong id="donutTotal">0</strong><span>場賽事</span></div></div><div class="donut-legend"><div><span class="legend-dot full-legend"></span><span>全馬</span><strong id="donutFull">0</strong></div><div><span class="legend-dot half-legend"></span><span>半馬</span><strong id="donutHalf">0</strong></div></div></div><div class="distance-insight" id="distanceInsight">新增賽事後，這裡會顯示你的距離分布。</div></article></div>
+        <article class="chart-card year-card"><div class="chart-heading"><div><span class="section-kicker">YEAR BY YEAR</span><h2>年度完賽里程</h2></div><span class="muted-caption">KM</span></div><div class="year-chart" id="yearChart"></div></article>
+        <footer class="page-footer"><span>RUNLOG <b>·</b> YOUR PERSONAL RACE JOURNAL</span><span>進步不一定要很快，只要一直在路上。</span></footer>
+      </section>
+
+      <section class="view" id="paceCalculatorView">
+        <div class="page-heading compact-heading">
+          <div><div class="eyebrow"><span class="eyebrow-line"></span>PACE & RACE PLANNER</div><h1>配速計算器</h1><p>輸入距離與完賽時間，快速掌握每公里配速與各距離完賽預估。</p></div>
+        </div>
+        <div class="pace-calculator-layout">
+          <form class="pace-card pace-form-card" id="paceCalculatorForm">
+            <div class="pace-card-heading"><span class="pace-card-icon">⌁</span><div><span class="section-kicker">YOUR RUN</span><h2>輸入跑步資料</h2></div></div>
+            <label class="pace-field">跑步距離 <span>KM</span><div class="pace-distance-input"><input id="paceDistance" type="number" min="0.1" max="1000" step="any" value="5" required><span>公里</span></div></label>
+            <div class="pace-presets" role="group" aria-label="常用賽事距離">
+              <button type="button" class="pace-preset selected" data-distance="5">5K</button>
+              <button type="button" class="pace-preset" data-distance="10">10K</button>
+              <button type="button" class="pace-preset" data-distance="21.0975">半馬</button>
+              <button type="button" class="pace-preset" data-distance="42.195">全馬</button>
+            </div>
+            <fieldset class="pace-time-fieldset"><legend>完賽時間</legend><div class="pace-time-inputs"><label><input id="paceHours" type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="小時" required><span>時</span></label><b>:</b><label><input id="paceMinutes" type="number" min="0" max="59" value="30" inputmode="numeric" aria-label="分鐘" required><span>分</span></label><b>:</b><label><input id="paceSeconds" type="number" min="0" max="59" value="0" inputmode="numeric" aria-label="秒" required><span>秒</span></label></div></fieldset>
+            <button class="button button-primary pace-submit" type="submit">計算我的配速 <span>↗</span></button>
+            <p class="pace-hint">配速格式為「分:秒 / 公里」；預估時間以維持相同配速計算。</p>
+          </form>
+          <section class="pace-card pace-results-card" aria-labelledby="paceResultsTitle" aria-live="polite">
+            <div class="pace-card-heading"><span class="pace-card-icon result-icon">◷</span><div><span class="section-kicker">PACE RESULT</span><h2 id="paceResultsTitle">你的跑步節奏</h2></div></div>
+            <div class="pace-primary-result"><span>平均配速</span><strong id="paceResult">06:00</strong><small>/KM</small></div>
+            <div class="pace-speed-result"><span>平均速度</span><strong id="paceSpeedResult">10.0</strong><small>KM/H</small></div>
+            <div class="pace-projection-heading"><h3>相同配速完賽預估</h3><span>維持目前節奏</span></div>
+            <div class="pace-projections" id="paceProjections"></div>
+            <p class="pace-error" id="paceCalculatorError" role="alert"></p>
+          </section>
+        </div>
+        <footer class="page-footer"><span>RUNLOG <b>·</b> PACE & RACE PLANNER</span><span>配速是參考，跑步時請以身體狀態為優先。</span></footer>
+      </section>
+
+      <section class="view" id="peopleView">
+        <div class="page-heading compact-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span>RUNNER MANAGEMENT</div><h1>人員管理</h1><p>新增人員，並替選定的人員記錄或匯入個人賽事。每位人員的紀錄彼此獨立。</p></div></div>
+        <div class="people-layout">
+          <section class="pace-card people-card" aria-labelledby="peopleListTitle">
+            <div class="pace-card-heading"><span class="pace-card-icon">☺</span><div><span class="section-kicker">RUNNERS</span><h2 id="peopleListTitle">人員清單</h2></div></div>
+            <ul class="people-list" id="peopleList"></ul>
+            <form class="people-add" id="personForm" novalidate>
+              <label class="field-label" for="personNameInput">新增人員 <span>*</span></label>
+              <div class="people-add-row"><input id="personNameInput" type="text" maxlength="30" placeholder="姓名或暱稱，例如：小明" autocomplete="off" required><button class="button button-primary" type="submit" id="savePersonButton">新增人員</button></div>
+              <div class="form-error" id="personFormError" role="alert"></div>
+            </form>
+          </section>
+          <section class="pace-card people-card" aria-labelledby="peopleRaceTitle">
+            <div class="pace-card-heading"><span class="pace-card-icon">▤</span><div><span class="section-kicker">RACE ENTRY</span><h2 id="peopleRaceTitle">新增賽事紀錄</h2></div></div>
+            <form id="peopleRaceForm" novalidate>
+              <label class="field-label" for="pmPersonSelect">記錄對象 <span>*</span><select id="pmPersonSelect" disabled><option value="">載入人員中…</option></select></label>
+              <label class="field-label" for="pmRaceName">賽事名稱 <span>*</span><input id="pmRaceName" type="text" maxlength="80" placeholder="例如：台北馬拉松" required></label>
+              <div class="form-row"><label class="field-label" for="pmRaceDate">完賽日期 <span>*</span><input id="pmRaceDate" type="date" required></label><label class="field-label" for="pmRaceType">賽事距離 <span>*</span><select id="pmRaceType" required><option value="full">全馬 · 42.195 KM</option><option value="half">半馬 · 21.0975 KM</option></select></label></div>
+              <div class="form-row"><label class="field-label">完賽時間 <span>*</span><div class="time-input"><input id="pmTimeHours" type="number" min="0" max="99" placeholder="時" aria-label="小時" required><b>:</b><input id="pmTimeMinutes" type="number" min="0" max="59" placeholder="分" aria-label="分鐘" required><b>:</b><input id="pmTimeSeconds" type="number" min="0" max="59" placeholder="秒" aria-label="秒" required></div></label><label class="field-label" for="pmRaceLocation">比賽地點<input id="pmRaceLocation" type="text" maxlength="80" placeholder="例如：台北市"></label></div>
+              <label class="field-label" for="pmRaceNote">賽事筆記 <span class="optional">選填</span><textarea id="pmRaceNote" rows="2" maxlength="500" placeholder="當天的天氣、感受……"></textarea></label>
+              <div class="form-error" id="pmFormError" role="alert"></div>
+              <div class="modal-actions"><button class="button button-outline" type="button" id="pmImportButton">⇧ 匯入 Excel</button><button class="button button-primary" type="submit" id="pmSaveButton">儲存紀錄 <span>↗</span></button></div>
+              <p class="people-hint" id="pmRecordCount"></p>
+            </form>
+          </section>
+        </div>
+        <footer class="page-footer"><span>RUNLOG <b>·</b> RUNNER MANAGEMENT</span><span>人員與賽事皆儲存於 Oracle。</span></footer>
+      </section>
+
+      <section class="view" id="raceListView">
+        <div class="page-heading compact-heading race-list-heading">
+          <div><div class="eyebrow"><span class="eyebrow-line"></span>FIND YOUR NEXT RACE</div><h1>可參加賽事</h1><p>參考跑者廣場全國賽會，整理未來路跑活動；選擇年月查詢，點選賽事名稱前往活動資訊／報名頁面。</p></div>
+          <div class="race-source-links"><a class="button button-primary race-source-button" href="http://www.taipeimarathon.org.tw/contest.aspx" target="_blank" rel="noopener noreferrer">跑者廣場全國賽會 <span>↗</span></a><a class="button button-outline race-source-button" href="https://www.sportsnet.org.tw/schedule.php" target="_blank" rel="noopener noreferrer">中華民國路跑協會 <span>↗</span></a></div>
+        </div>
+        <div class="race-month-toolbar">
+          <label for="raceYearSelect"><span>選擇年份</span><select id="raceYearSelect" disabled><option value="">載入年份…</option></select></label>
+          <label for="raceMonthSelect"><span>選擇月份</span><select id="raceMonthSelect" disabled><option value="">載入月份…</option></select></label>
+          <button class="button button-outline" id="raceListRefresh" type="button">重新整理 <span>↻</span></button>
+          <span class="race-list-status" id="raceListStatus" role="status" aria-live="polite">正在讀取跑者廣場賽事…</span>
+        </div>
+        <div class="race-list-summary">
+          <div class="race-summary-icon">↗</div>
+          <div><strong id="raceListCount">0 場賽事</strong><span id="raceListMonthLabel">僅列出未來賽事</span></div>
+          <span class="race-source-label">資料來源：跑者廣場</span>
+        </div>
+        <div class="race-table-wrap">
+          <table class="race-table">
+            <thead><tr><th>賽事名稱</th><th>日期</th><th>地點</th><th>里程</th></tr></thead>
+            <tbody id="raceListBody"><tr><td colspan="4">正在載入賽事資料…</td></tr></tbody>
+          </table>
+        </div>
+        <p class="race-list-note">賽事資料參考跑者廣場全國賽會；活動與報名資訊可能異動，請以各賽事官方公告為準。頁面亦提供中華民國路跑協會行事曆連結供參考。</p>
+        <footer class="page-footer"><span>RUNLOG <b>·</b> FIND YOUR NEXT START LINE</span><span>報名與活動問題請洽各賽事主辦單位。</span></footer>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="raceModal" aria-hidden="true">
+    <section class="race-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header"><div><span class="section-kicker">RACE DETAILS</span><h2 id="modalTitle">新增賽事紀錄</h2><p>把這次挑戰，寫進你的跑步故事。</p></div><button class="icon-button modal-close" id="closeModal" aria-label="關閉">×</button></div>
+      <form id="raceForm">
+        <input type="hidden" id="raceId">
+        <label class="field-label">賽事名稱 <span>*</span><input id="raceName" type="text" maxlength="80" placeholder="例如：台北馬拉松" required></label>
+        <div class="form-row"><label class="field-label">完賽日期 <span>*</span><input id="raceDate" type="date" required></label><label class="field-label">賽事距離 <span>*</span><select id="raceType" required><option value="full">全馬 · 42.195 KM</option><option value="half">半馬 · 21.0975 KM</option></select></label></div>
+        <div class="form-row"><label class="field-label">完賽時間 <span>*</span><div class="time-input"><input id="timeHours" type="number" min="0" max="99" placeholder="時" aria-label="小時" required><b>:</b><input id="timeMinutes" type="number" min="0" max="59" placeholder="分" aria-label="分鐘" required><b>:</b><input id="timeSeconds" type="number" min="0" max="59" placeholder="秒" aria-label="秒" required></div></label><label class="field-label">比賽地點<input id="raceLocation" type="text" maxlength="80" placeholder="例如：台北市"></label></div>
+        <label class="field-label">賽事筆記 <span class="optional">選填</span><textarea id="raceNote" rows="3" maxlength="500" placeholder="當天的天氣、感受，或想留給自己的話……"></textarea></label>
+        <div class="form-error" id="formError" role="alert"></div>
+        <div class="modal-actions"><button class="button button-quiet" type="button" id="cancelModal">取消</button><button class="button button-primary" type="submit" id="saveRaceButton">儲存紀錄 <span>↗</span></button></div>
+      </form>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="application/json" id="initialRaceData">
+  [
+    {"id":"seed-full-2026-09-20","name":"榮耀九三(石門水庫)","date":"2026-09-20","type":"full","seconds":12900,"location":"","note":"原表次數：十五馬 · 👑 PB 男總六 /男丙組第一"},
+    {"id":"seed-full-2026-07-26","name":"PAPAGO桃園","date":"2026-07-26","type":"full","seconds":18900,"location":"","note":"原表次數：十四馬"},
+    {"id":"seed-full-2026-03-15","name":"萬金石馬","date":"2026-03-15","type":"full","seconds":19560,"location":"","note":"原表次數：十三馬"},
+    {"id":"seed-full-2025-10-19","name":"烏來馬","date":"2025-10-19","type":"full","seconds":23280,"location":"","note":"原表次數：十二馬"},
+    {"id":"seed-full-2024-10-27","name":"長榮馬","date":"2024-10-27","type":"full","seconds":19020,"location":"","note":"原表次數：十一馬"},
+    {"id":"seed-full-2024-03-17","name":"萬金石馬","date":"2024-03-17","type":"full","seconds":15840,"location":"","note":"原表次數：十馬 · 🎂生日"},
+    {"id":"seed-full-2023-12-17","name":"臺北馬","date":"2023-12-17","type":"full","seconds":15660,"location":"","note":"原表次數：九馬"},
+    {"id":"seed-full-2023-11-12","name":"渣打馬","date":"2023-11-12","type":"full","seconds":15180,"location":"","note":"原表次數：八馬"},
+    {"id":"seed-full-2023-10-29","name":"觀音山馬","date":"2023-10-29","type":"full","seconds":20340,"location":"","note":"原表次數：七馬"},
+    {"id":"seed-full-2022-12-10","name":"太魯閣馬","date":"2022-12-10","type":"full","seconds":17460,"location":"","note":"原表次數：六馬"},
+    {"id":"seed-full-2022-03-05","name":"太魯閣馬","date":"2022-03-05","type":"full","seconds":13380,"location":"","note":"原表次數：五馬"},
+    {"id":"seed-full-2021-12-25","name":"環跑台北67K","date":"2021-12-25","type":"full","seconds":34740,"location":"","note":"原表次數：四馬 · 超馬 🎖️"},
+    {"id":"seed-full-2021-12-19","name":"臺北馬","date":"2021-12-19","type":"full","seconds":13320,"location":"","note":"原表次數：三馬"},
+    {"id":"seed-full-2020-11-07","name":"太魯閣馬","date":"2020-11-07","type":"full","seconds":15120,"location":"","note":"原表次數：二馬"},
+    {"id":"seed-full-2019-11-02","name":"太魯閣馬","date":"2019-11-02","type":"full","seconds":16740,"location":"","note":"原表次數：初馬"},
+    {"id":"seed-half-2016-01-24","name":"渣打馬拉松","date":"2016-01-24","type":"half","seconds":7020,"location":"","note":"原表次數：1 · 初半馬 🥶 霸王級寒流"},
+    {"id":"seed-half-2020-12-20","name":"臺北馬拉松","date":"2020-12-20","type":"half","seconds":6060,"location":"","note":"原表次數：2"},
+    {"id":"seed-half-2021-04-08","name":"復活節半馬","date":"2021-04-08","type":"half","seconds":5820,"location":"","note":"原表次數：3 · 凸台 總八🏆"},
+    {"id":"seed-half-2021-11-14","name":"統一發票盃","date":"2021-11-14","type":"half","seconds":6000,"location":"","note":"原表次數：4"},
+    {"id":"seed-half-2022-04-16","name":"復活節半馬","date":"2022-04-16","type":"half","seconds":5760,"location":"","note":"原表次數：5 · 👑 PB 總11"},
+    {"id":"seed-half-2025-10-26","name":"長榮航空半馬","date":"2025-10-26","type":"half","seconds":6900,"location":"","note":"原表次數：6"}
+  ]
+  </script>
+  <script src="js/xlsx.full.min.js"></script>
+  <script src="js_src/race-snapshot.js"></script>
+  <script src="js_src/script.js"></script>
+  <script src="js_src/appearance.js"></script>
+</body>
+</html>
