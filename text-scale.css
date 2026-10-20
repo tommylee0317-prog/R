@@ -1,0 +1,8 @@
+/* Reduce the application to 80%, while keeping the records view unchanged. */
+body {
+  zoom: 0.8;
+}
+
+#recordsView {
+  zoom: 1.25;
+}
