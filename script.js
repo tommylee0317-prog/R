@@ -77,6 +77,7 @@ function updatePersonPresentation() {
   $('#challengeKicker').textContent = `${upperName}'S MARATHON CHALLENGE`;
   $('#heroIndex').textContent = `${upperName} · ${new Date().getFullYear()}`;
   document.title = `RUNLOG｜${name}的賽事成績`;
+  refreshConnectedStatus();
 }
 
 function escapeHtml(value = '') {
@@ -384,6 +385,16 @@ function setApiStatus(message, state = '') {
   else delete status.dataset.state;
 }
 
+// The "connected" line is always built from the current person and records, so switching, renaming and edits keep it correct.
+function connectedStatusText() {
+  const count = type => records.filter(record => record.type === type).length;
+  return `已連線 ${STORE_LABEL} · ${activePerson?.name || ''} · 全馬 ${count('full')} 場／半馬 ${count('half')} 場`;
+}
+
+function refreshConnectedStatus() {
+  if (activePerson && $('#apiStatus')?.dataset.state === 'connected') setApiStatus(connectedStatusText(), 'connected');
+}
+
 function demoPeople() {
   try {
     const stored = JSON.parse(localStorage.getItem(DEMO_PEOPLE_KEY) || 'null');
@@ -472,7 +483,7 @@ async function loadRacesFromDatabase() {
     records.splice(0, records.length, ...data.map(record => ({ ...record, id: String(record.id) })));
     saveLocalRecords();
     renderAll();
-    setApiStatus(`已連線 ${STORE_LABEL} · ${requestedPerson.name} · 全馬 ${records.filter(record => record.type === 'full').length} 場／半馬 ${records.filter(record => record.type === 'half').length} 場`, 'connected');
+    setApiStatus(connectedStatusText(), 'connected');
   } catch (error) {
     if (activePerson?.id !== requestedPerson.id) return;
     console.error('讀取 Oracle 賽事資料失敗：', error);
@@ -915,6 +926,7 @@ function renderAll() {
   renderRecords();
   renderPeople();
   if (activeView === 'analytics') renderAnalytics();
+  refreshConnectedStatus();
 }
 
 function csvToRows(text) {
