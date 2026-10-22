@@ -21,8 +21,22 @@
   <link rel="stylesheet" href="person.css">
   <link rel="stylesheet" href="viewmode.css">
   <link rel="stylesheet" href="features.css">
+  <link rel="stylesheet" href="sport.css">
 </head>
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-runner" viewBox="64 60 244 248"><g transform="translate(-28 32)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M178 100 146 139" stroke-width="21"/><path d="M237 104 269 143Q273 148 281 148H313" stroke-width="22"/><path d="M181 151 160 181 112 257" stroke-width="23"/><path d="M194 157 222 177 249 193Q254 197 248 203L199 220" stroke-width="23"/><path d="M174 94Q180 87 190 87H232Q244 87 251 98L272 132 249 155 231 125 211 153Q201 166 187 159L177 154Q166 148 171 135L194 105H181Z" fill="currentColor" stroke="none"/><circle cx="257" cy="61" r="22" fill="currentColor" stroke="none"/></g></symbol>
+      <symbol id="i-gauge" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4-5"/><circle cx="12" cy="17" r="1.3" fill="currentColor"/></g></symbol>
+      <symbol id="i-medal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="5"/><path d="M8 3l4 6 4-6"/><path d="M12 13v4"/></g></symbol>
+      <symbol id="i-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><path d="M7 15l4-4 3 3 5-6"/></g></symbol>
+      <symbol id="i-stopwatch" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="7"/><path d="M12 14v-4"/><path d="M9 3h6"/><path d="M12 3v4"/><path d="M19 7l-1.5 1.5"/></g></symbol>
+      <symbol id="i-flag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4h12l-2 4 2 4H5"/></g></symbol>
+      <symbol id="i-people" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 0 1 5 5.5"/></g></symbol>
+      <symbol id="i-shoe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16c0-3 2-4 4-4l3-3 2 2 3 1c3 1 6 2 6 5v2H3z"/><path d="M3 18h18"/></g></symbol>
+      <symbol id="i-route" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/></g></symbol>
+    </defs>
+  </svg>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <a class="brand" href="#dashboard" aria-label="RUNLOG 首頁">
@@ -31,12 +45,12 @@
       </a>
       <div class="nav-label">工作區</div>
       <nav class="main-nav" aria-label="主要導覽">
-        <button class="nav-item active" data-view="dashboard"><span class="nav-icon">◫</span>總覽 Dashboard</button>
-        <button class="nav-item" data-view="records"><span class="nav-icon">▤</span>賽事紀錄</button>
-        <button class="nav-item" data-view="analytics"><span class="nav-icon">⌁</span>成績分析</button>
-        <button class="nav-item" data-view="paceCalculator"><span class="nav-icon">◷</span>配速計算器</button>
-        <button class="nav-item" data-view="raceList"><span class="nav-icon">♧</span>可參加賽事</button>
-        <button class="nav-item" data-view="people"><span class="nav-icon">☺</span>人員管理</button>
+        <button class="nav-item active" data-view="dashboard"><svg class="ico nav-icon" aria-hidden="true"><use href="#i-gauge"/></svg>總覽 Dashboard</button>
+        <button class="nav-item" data-view="records"><svg class="ico nav-icon" aria-hidden="true"><use href="#i-medal"/></svg>賽事紀錄</button>
+        <button class="nav-item" data-view="analytics"><svg class="ico nav-icon" aria-hidden="true"><use href="#i-chart"/></svg>成績分析</button>
+        <button class="nav-item" data-view="paceCalculator"><svg class="ico nav-icon" aria-hidden="true"><use href="#i-stopwatch"/></svg>配速計算器</button>
+        <button class="nav-item" data-view="raceList"><svg class="ico nav-icon" aria-hidden="true"><use href="#i-flag"/></svg>可參加賽事</button>
+        <button class="nav-item" data-view="people"><svg class="ico nav-icon" aria-hidden="true"><use href="#i-people"/></svg>人員管理</button>
       </nav>
       <div class="sidebar-bottom">
         <div class="sidebar-note"><span class="note-dot"></span><span>每一場，都是新的里程碑。</span></div>
@@ -96,6 +110,8 @@
         <section class="hero-card challenge-hero">
           <div class="hero-copy challenge-copy"><span class="hero-kicker"><span class="challenge-pulse"></span> <span id="challengeKicker">TOMMY'S MARATHON CHALLENGE</span></span><h2>目標在前方，<br>下一步由你<span>決定。</span></h2><p>從半馬到全馬，從第一次起跑到刷新 PB。<br>把日常的堅持，跑成值得驕傲的 42.195 公里。</p><button class="button button-light" id="heroAddButton">記錄我的里程碑 <span>↗</span></button><div class="hero-motto"><span>01</span> 每一步，都在成就更強大的自己</div></div>
           <div class="hero-art challenge-art"><img class="sports-runner-image" src="runlog-runner-white.png" alt="奔跑中的人物圖示"><div class="challenge-distance"><span>THE DISTANCE</span><strong>42<span>.195</span></strong><small>KILOMETRES TO YOUR NEXT STORY</small></div><div class="challenge-caption">SHOW UP. <b>KEEP GOING.</b></div></div>
+          <span class="hero-lanes" aria-hidden="true"></span>
+          <span class="hero-run" aria-hidden="true"><svg class="ico"><use href="#i-runner"/></svg></span>
           <span class="rainbow-spectrum" aria-hidden="true"></span>
           <span class="hero-index" id="heroIndex">TOMMY · 2026</span>
         </section>
@@ -109,9 +125,9 @@
         <div class="other-pb" id="otherPbRow" hidden></div>
         <div class="section-heading stats-heading"><div><span class="section-kicker">YOUR MILESTONES</span><h2>累計統計</h2></div><span class="muted-caption">從第一場開始累積</span></div>
         <div class="stats-grid">
-          <article class="stat-card"><div class="stat-top"><span>全馬完賽</span><span class="stat-icon peach">↗</span></div><div class="stat-value"><strong id="fullCount">0</strong><span>場</span></div><div class="stat-foot">42.195 KM 每一公里都不簡單</div></article>
-          <article class="stat-card"><div class="stat-top"><span>半馬完賽</span><span class="stat-icon mint">↗</span></div><div class="stat-value"><strong id="halfCount">0</strong><span>場</span></div><div class="stat-foot">21.0975 KM 持續突破自己</div></article>
-          <article class="stat-card distance-stat"><div class="stat-top"><span>累積賽事里程</span><span class="stat-icon blue">⌁</span></div><div class="stat-value"><strong id="totalDistance">0</strong><span>KM</span></div><div class="stat-foot">每一段路，都是你的故事</div></article>
+          <article class="stat-card"><div class="stat-top"><span>全馬完賽</span><span class="stat-icon peach"><svg class="ico" aria-hidden="true"><use href="#i-shoe"/></svg></span></div><div class="stat-value"><strong id="fullCount">0</strong><span>場</span></div><div class="stat-foot">42.195 KM 每一公里都不簡單</div></article>
+          <article class="stat-card"><div class="stat-top"><span>半馬完賽</span><span class="stat-icon mint"><svg class="ico" aria-hidden="true"><use href="#i-medal"/></svg></span></div><div class="stat-value"><strong id="halfCount">0</strong><span>場</span></div><div class="stat-foot">21.0975 KM 持續突破自己</div></article>
+          <article class="stat-card distance-stat"><div class="stat-top"><span>累積賽事里程</span><span class="stat-icon blue"><svg class="ico" aria-hidden="true"><use href="#i-route"/></svg></span></div><div class="stat-value"><strong id="totalDistance">0</strong><span>KM</span></div><div class="stat-foot">每一段路，都是你的故事</div></article>
         </div>
 
         <div class="section-heading recent-heading"><div><span class="section-kicker">RECENT RACES</span><h2>近期賽事</h2></div><button class="text-button" data-go="records">查看全部 <span>→</span></button></div>

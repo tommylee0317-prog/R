@@ -1,9 +1,9 @@
 // RUNLOG service worker: lets the demo open offline and be installed on a phone.
 // Bump VERSION when files change so old caches are dropped.
-const VERSION = 'runlog-v1';
+const VERSION = 'runlog-v2';
 const ASSETS = [
   './', 'index.html', 'styles.css', 'challenge.css', 'sports-theme.css', 'text-scale.css', 'taipei.css',
-  'appearance.css', 'person.css', 'viewmode.css', 'features.css',
+  'appearance.css', 'person.css', 'viewmode.css', 'features.css', 'sport.css',
   'xlsx.full.min.js', 'race-snapshot.js', 'script.js', 'appearance.js', 'viewmode.js', 'features.js',
   'runlog-logo.png', 'runlog-runner-white.png', 'icon.svg', 'manifest.json'
 ];
