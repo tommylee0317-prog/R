@@ -1,0 +1,50 @@
+/* Goals, countdown, extra distances, PIN lock, backup and install button (see features.js) */
+
+/* Other distance chips */
+.type-chip.other { background: var(--tpm-grey, #797c81); color: #fff; }
+
+.other-pb { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 4px; }
+.other-pb[hidden] { display: none; }
+.other-pb-item { display: grid; gap: 2px; min-width: 150px; padding: 10px 14px; border: 1px solid var(--line); border-left: 4px solid var(--tpm-grey, #797c81); border-radius: var(--radius, 4px); background: var(--surface); }
+.other-pb-item span { color: var(--muted); font-size: 12px; font-weight: 700; }
+.other-pb-item strong { font-family: var(--num-font, inherit); font-size: 22px; color: var(--text); }
+.other-pb-item small { color: var(--muted); font-size: 12px; }
+
+.distance-extra[hidden] { display: none; }
+
+/* Goals + countdown */
+.goal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.goal-card { padding: 20px; border: 1px solid var(--line); border-top: 4px solid var(--green); border-radius: var(--radius, 4px); background: var(--surface); box-shadow: var(--shadow); }
+.goal-card h3 { margin: 0 0 14px; font-size: 16px; color: var(--text); }
+.goal-bar { height: 12px; overflow: hidden; border-radius: 6px; background: var(--green-pale); }
+.goal-bar span { display: block; width: 0; height: 100%; border-radius: 6px; background: var(--green); transition: width .4s ease; }
+.goal-summary { margin: 12px 0 16px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.goal-form label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 13px; font-weight: 700; }
+.goal-form-row { display: flex; gap: 10px; }
+.goal-form-row input { flex: 1; min-width: 0; min-height: 40px; padding: 8px 12px; border: 1px solid var(--line); border-radius: var(--radius, 4px); background: var(--surface-soft); color: var(--text); }
+
+.countdown-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.countdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius, 4px); background: var(--surface-soft); }
+.countdown-item > div { flex: 1; min-width: 0; }
+.countdown-item a { display: block; overflow: hidden; color: var(--green-dark); font-weight: 700; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+.countdown-item a:hover { text-decoration: underline; }
+.countdown-item small { color: var(--muted); font-size: 12px; }
+.countdown-days { flex: none; color: var(--text); font-size: 15px; white-space: nowrap; }
+.countdown-remove { flex: none; width: 28px; height: 28px; padding: 0; border: 1px solid var(--line); border-radius: var(--radius, 4px); background: transparent; color: var(--muted); }
+.countdown-remove:hover { border-color: var(--red, #d0202e); color: var(--red, #d0202e); }
+.countdown-empty { padding: 14px; color: var(--muted); font-size: 14px; text-align: center; }
+
+.fav-button { width: 34px; height: 34px; padding: 0; border: 1px solid var(--line); border-radius: var(--radius, 4px); background: transparent; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; }
+.fav-button[aria-pressed="true"] { border-color: var(--yellow, #c79500); color: var(--yellow, #c79500); }
+.fav-button:hover { border-color: var(--yellow, #c79500); }
+
+/* People: backup card */
+.backup-card { margin-top: 20px; }
+.backup-card[hidden] { display: none; }
+.backup-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+
+.install-app { margin-top: 12px; width: 100%; }
+
+@media (max-width: 800px) {
+  .goal-grid { grid-template-columns: 1fr; }
+}

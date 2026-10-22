@@ -1,0 +1,16 @@
+{
+  "name": "RUNLOG 個人賽事日誌",
+  "short_name": "RUNLOG",
+  "description": "記錄馬拉松與路跑賽事成績、目標與配速。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#002158",
+  "theme_color": "#002158",
+  "lang": "zh-Hant",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "runlog-logo.png", "sizes": "256x256", "type": "image/png", "purpose": "any" },
+    { "src": "runlog-runner-white.png", "sizes": "512x512", "type": "image/png", "purpose": "monochrome" }
+  ]
+}

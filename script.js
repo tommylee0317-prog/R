@@ -2,7 +2,12 @@ const STORAGE_KEY = 'runlog-records-v1';
 const THEME_KEY = 'runlog-theme-v1';
 const ACTIVE_PERSON_KEY = 'runlog-active-person-v1';
 const RACE_SOURCE_STORAGE_KEY = 'runlog-race-source-v3';
-const DISTANCES = { full: 42.195, half: 21.0975 };
+const DISTANCES = { full: 42.195, half: 21.0975, '10k': 10, '5k': 5, ultra: 50, other: 1 };
+const TYPE_LABELS = { full: '全馬', half: '半馬', '10k': '10K', '5k': '5K', ultra: '超馬', other: '其他距離' };
+// Ultra / other races carry their own distanceKm; the DISTANCES value is only a fallback.
+const distanceOf = record => (Number(record?.distanceKm) > 0 ? Number(record.distanceKm) : DISTANCES[record?.type] || 0);
+const typeChipClass = type => (type === 'full' || type === 'half' ? type : 'other');
+const typeLabel = record => `${TYPE_LABELS[record.type] || '其他距離'} · ${Number(distanceOf(record).toFixed(4))} KM`;
 // Demo build (GitHub Pages): no Tomcat/Oracle, so the API is emulated in the browser's localStorage.
 const DEMO_MODE = Boolean(document.querySelector('meta[name="runlog-demo"]')) || location.hostname.endsWith('.github.io');
 const STORE_LABEL = DEMO_MODE ? '瀏覽器（展示版）' : 'Oracle';
@@ -89,7 +94,7 @@ function formatTime(totalSeconds, includeHours = true) {
 }
 
 function formatPace(seconds, type) {
-  return formatTime(Number(seconds) / DISTANCES[type], false);
+  return formatTime(Number(seconds) / (typeof type === 'object' ? distanceOf(type) : DISTANCES[type]), false);
 }
 
 function formatDate(dateString, options = { year: 'numeric', month: 'short', day: 'numeric' }) {
@@ -233,8 +238,9 @@ function renderRaceList() {
         <td data-label="日期">${formatDate(race.date, { calendar: 'gregory', year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' })}</td>
         <td data-label="地點">${escapeHtml(race.location || '—')}</td>
         <td data-label="里程">${escapeHtml(race.mileage || '—')}</td>
+        <td data-label="收藏"><button type="button" class="fav-button" data-fav="${escapeHtml(`${race.date}|${race.name}`)}" aria-pressed="${typeof isFavorite === 'function' && isFavorite(race)}" aria-label="收藏 ${escapeHtml(race.name)}">${typeof isFavorite === 'function' && isFavorite(race) ? '★' : '☆'}</button></td>
       </tr>`).join('')
-    : '<tr><td colspan="4" class="race-table-empty">這個月份目前沒有未來賽事，請選擇其他年月或查看跑者廣場。</td></tr>';
+    : '<tr><td colspan="5" class="race-table-empty">這個月份目前沒有未來賽事，請選擇其他年月或查看跑者廣場。</td></tr>';
 }
 
 function getRaceMonthOptions(races) {
@@ -333,7 +339,7 @@ async function loadRaceSource(force = false) {
       monthSelect.disabled = false;
       status.textContent = `無法同步賽事：${error.message}`;
       $('#raceListCount').textContent = '暫無資料';
-      $('#raceListBody').innerHTML = '<tr><td colspan="4" class="race-table-empty">無法載入賽事資料。請稍後重新整理，或前往跑者廣場查看最新賽會。</td></tr>';
+      $('#raceListBody').innerHTML = '<tr><td colspan="5" class="race-table-empty">無法載入賽事資料。請稍後重新整理，或前往跑者廣場查看最新賽會。</td></tr>';
     }
   } finally {
     raceListLoading = false;
@@ -632,26 +638,35 @@ function updateDashboard() {
   const halfBest = best(half);
   $('#fullCount').textContent = full.length;
   $('#halfCount').textContent = half.length;
-  $('#totalDistance').textContent = records.reduce((sum, record) => sum + DISTANCES[record.type], 0).toLocaleString('zh-TW', { maximumFractionDigits: 2 });
+  $('#totalDistance').textContent = records.reduce((sum, record) => sum + distanceOf(record), 0).toLocaleString('zh-TW', { maximumFractionDigits: 2 });
   $('#fullPbTime').textContent = fullBest ? formatTime(fullBest.seconds) : '--:--:--';
   $('#halfPbTime').textContent = halfBest ? formatTime(halfBest.seconds) : '--:--:--';
   $('#fullPbMeta').textContent = fullBest ? `${escapeHtml(fullBest.name)} · ${formatDate(fullBest.date)}` : '尚無完賽紀錄';
   $('#halfPbMeta').textContent = halfBest ? `${escapeHtml(halfBest.name)} · ${formatDate(halfBest.date)}` : '尚無完賽紀錄';
+  const otherPbRow = $('#otherPbRow');
+  if (otherPbRow) {
+    const groups = ['10k', '5k', 'ultra', 'other'].map(type => ({ type, list: records.filter(record => record.type === type) })).filter(group => group.list.length);
+    otherPbRow.hidden = !groups.length;
+    otherPbRow.innerHTML = groups.map(group => {
+      const top = [...group.list].sort((a, b) => Number(a.seconds) / distanceOf(a) - Number(b.seconds) / distanceOf(b))[0];
+      return `<div class="other-pb-item"><span>${escapeHtml(TYPE_LABELS[group.type])} 最佳</span><strong>${formatTime(top.seconds)}</strong><small>${escapeHtml(top.name)} · ${formatDate(top.date)}</small></div>`;
+    }).join('');
+  }
   const recent = sortedRecords().slice(0, 4);
   $('#recentRaces').innerHTML = recent.length ? recent.map(record => `
     <div class="recent-row">
       <div class="recent-event">${escapeHtml(record.name)}<small>${escapeHtml(record.location || '未填寫地點')}</small></div>
-      <span class="type-chip ${record.type}">${record.type === 'full' ? '全馬 · 42.195 KM' : '半馬 · 21.0975 KM'}</span>
+      <span class="type-chip ${typeChipClass(record.type)}">${escapeHtml(typeLabel(record))}</span>
       <span class="row-time">${formatTime(record.seconds)}</span>
       <span class="row-date">${formatDate(record.date)}</span>
-      <span class="row-pace">${formatPace(record.seconds, record.type)} /KM</span>
+      <span class="row-pace">${formatPace(record.seconds, record)} /KM</span>
     </div>`).join('') : '<div class="recent-empty"><div><strong>你的第一場賽事，正等著被記錄。</strong><p>新增賽事後，近期紀錄會出現在這裡。</p></div></div>';
 }
 
 function renderRecords() {
   const query = $('#searchInput').value.trim().toLocaleLowerCase();
   const filtered = sortedRecords().filter(record => {
-    const matchesType = activeFilter === 'all' || record.type === activeFilter;
+    const matchesType = activeFilter === 'all' || (activeFilter === 'other' ? !['full', 'half'].includes(record.type) : record.type === activeFilter);
     const matchesQuery = !query || `${record.name} ${record.location || ''} ${record.note || ''}`.toLocaleLowerCase().includes(query);
     return matchesType && matchesQuery;
   });
@@ -661,9 +676,9 @@ function renderRecords() {
     <tr>
       <td>${escapeHtml(record.name)}</td>
       <td>${formatDate(record.date, { year: 'numeric', month: '2-digit', day: '2-digit' })}</td>
-      <td><span class="type-chip ${record.type}">${record.type === 'full' ? '全馬 · 42.195 KM' : '半馬 · 21.0975 KM'}</span></td>
+      <td><span class="type-chip ${typeChipClass(record.type)}">${escapeHtml(typeLabel(record))}</span></td>
       <td><span class="row-time">${formatTime(record.seconds)}</span></td>
-      <td>${formatPace(record.seconds, record.type)} /KM</td>
+      <td>${formatPace(record.seconds, record)} /KM</td>
       <td class="location-cell" title="${escapeHtml(record.location || '')}">${escapeHtml(record.location || '—')}</td>
       <td><div class="table-actions"><button class="mini-action" data-edit="${escapeHtml(record.id)}" aria-label="編輯 ${escapeHtml(record.name)}" title="編輯">✎</button><button class="mini-action delete" data-delete="${escapeHtml(record.id)}" aria-label="刪除 ${escapeHtml(record.name)}" title="刪除">×</button></div></td>
     </tr>`).join('');
@@ -682,9 +697,9 @@ function renderAnalytics() {
   if (years.includes(previousValue)) yearSelect.value = previousValue;
   const year = yearSelect.value;
   const scoped = year === 'all' ? records : records.filter(record => record.date.startsWith(year));
-  const totalMeters = scoped.reduce((sum, record) => sum + DISTANCES[record.type], 0);
+  const totalMeters = scoped.reduce((sum, record) => sum + distanceOf(record), 0);
   const totalSeconds = scoped.reduce((sum, record) => sum + Number(record.seconds), 0);
-  const totalDistance = scoped.reduce((sum, record) => sum + DISTANCES[record.type], 0);
+  const totalDistance = scoped.reduce((sum, record) => sum + distanceOf(record), 0);
   $('#analyticsRaces').innerHTML = `${scoped.length} <small>場</small>`;
   $('#analyticsDistance').innerHTML = `${totalDistance.toLocaleString('zh-TW', { maximumFractionDigits: 2 })} <small>KM</small>`;
   $('#analyticsPace').innerHTML = `${totalMeters ? formatTime(totalSeconds / totalMeters, false) : '--:--'} <small>/KM</small>`;
@@ -702,7 +717,7 @@ function drawTrend(list) {
     return;
   }
   const width = 640, height = 214, left = 43, right = 15, top = 14, bottom = 34;
-  const values = sorted.map(record => Number(record.seconds) / DISTANCES[record.type] / 60);
+  const values = sorted.map(record => Number(record.seconds) / distanceOf(record) / 60);
   const low = Math.floor(Math.min(...values) - 0.5);
   const high = Math.ceil(Math.max(...values) + 0.5);
   const span = Math.max(1, high - low);
@@ -713,12 +728,12 @@ function drawTrend(list) {
     const yy = y(val);
     return `<line x1="${left}" y1="${yy}" x2="${width - right}" y2="${yy}" stroke="var(--line)" stroke-dasharray="3 4"/><text x="${left - 8}" y="${yy + 3}" text-anchor="end">${formatTime(val * 60, false)}</text>`;
   }).join('');
-  const paths = ['full', 'half'].map(type => {
-    const points = sorted.map((record, index) => ({ record, index })).filter(point => point.record.type === type);
+  const paths = ['full', 'half', 'other'].map(type => {
+    const points = sorted.map((record, index) => ({ record, index })).filter(point => typeChipClass(point.record.type) === type);
     if (!points.length) return '';
-    const color = type === 'full' ? 'var(--full-color, var(--orange))' : 'var(--green)';
+    const color = type === 'full' ? 'var(--full-color, var(--orange))' : type === 'half' ? 'var(--green)' : 'var(--tpm-grey, #797c81)';
     const line = points.map(point => `${x(point.index)},${y(values[point.index])}`).join(' ');
-    const circles = points.map(point => `<circle cx="${x(point.index)}" cy="${y(values[point.index])}" r="3.5" fill="${color}" stroke="var(--surface)" stroke-width="2"><title>${escapeHtml(point.record.name)}｜${formatDate(point.record.date)}｜${formatPace(point.record.seconds, type)} /KM</title></circle>`).join('');
+    const circles = points.map(point => `<circle cx="${x(point.index)}" cy="${y(values[point.index])}" r="3.5" fill="${color}" stroke="var(--surface)" stroke-width="2"><title>${escapeHtml(point.record.name)}｜${formatDate(point.record.date)}｜${formatPace(point.record.seconds, point.record)} /KM</title></circle>`).join('');
     return `<polyline points="${line}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${circles}`;
   }).join('');
   const labelIndices = [...new Set([0, Math.floor((sorted.length - 1) / 2), sorted.length - 1])];
@@ -728,16 +743,17 @@ function drawTrend(list) {
 
 function drawDonut(list) {
   const fullCount = list.filter(record => record.type === 'full').length;
-  const halfCount = list.length - fullCount;
-  const percentage = list.length ? fullCount / list.length * 100 : 0;
-  $('#donutChart').style.background = list.length
+  const halfCount = list.filter(record => record.type === 'half').length;
+  const otherCount = list.length - fullCount - halfCount;
+  const percentage = fullCount + halfCount ? fullCount / (fullCount + halfCount) * 100 : 0;
+  $('#donutChart').style.background = fullCount + halfCount
     ? `conic-gradient(var(--full-color, var(--orange)) 0 ${percentage}%, var(--green) ${percentage}% 100%)`
     : 'conic-gradient(var(--line) 0 100%)';
   $('#donutTotal').textContent = list.length;
   $('#donutFull').textContent = fullCount;
   $('#donutHalf').textContent = halfCount;
   $('#distanceInsight').textContent = list.length
-    ? `全馬佔 ${Math.round(percentage)}%，半馬佔 ${Math.round(100 - percentage)}%。每一種距離，都是不同的突破。`
+    ? `全馬佔 ${Math.round(percentage)}%，半馬佔 ${Math.round(100 - percentage)}%${otherCount ? `（另有 ${otherCount} 場其他距離）` : ''}。每一種距離，都是不同的突破。`
     : '新增賽事後，這裡會顯示你的距離分布。';
 }
 
@@ -747,7 +763,7 @@ function drawYearChart(list) {
   list.forEach(record => {
     const year = record.date.slice(0, 4);
     if (!/^\d{4}$/.test(year)) return;
-    byYear.set(year, (byYear.get(year) || 0) + DISTANCES[record.type]);
+    byYear.set(year, (byYear.get(year) || 0) + distanceOf(record));
   });
   const years = [...byYear.keys()].sort();
   if (!years.length) {
@@ -772,6 +788,8 @@ function openModal(record = null) {
   $('#raceDate').value = record?.date || new Date().toISOString().slice(0, 10);
   $('#raceName').value = record?.name || '';
   $('#raceType').value = record?.type || 'full';
+  $('#raceDistance').value = record?.distanceKm || '';
+  syncDistanceRow('raceType', 'raceDistanceRow', 'raceDistance');
   $('#raceLocation').value = record?.location || '';
   $('#raceNote').value = record?.note || '';
   const seconds = Number(record?.seconds || 0);
@@ -790,8 +808,15 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 
-const MODAL_RACE_FIELDS = { name: 'raceName', date: 'raceDate', type: 'raceType', hours: 'timeHours', minutes: 'timeMinutes', seconds: 'timeSeconds', location: 'raceLocation', note: 'raceNote' };
-const PEOPLE_RACE_FIELDS = { name: 'pmRaceName', date: 'pmRaceDate', type: 'pmRaceType', hours: 'pmTimeHours', minutes: 'pmTimeMinutes', seconds: 'pmTimeSeconds', location: 'pmRaceLocation', note: 'pmRaceNote' };
+const MODAL_RACE_FIELDS = { name: 'raceName', date: 'raceDate', type: 'raceType', distance: 'raceDistance', hours: 'timeHours', minutes: 'timeMinutes', seconds: 'timeSeconds', location: 'raceLocation', note: 'raceNote' };
+const PEOPLE_RACE_FIELDS = { name: 'pmRaceName', date: 'pmRaceDate', type: 'pmRaceType', distance: 'pmRaceDistance', hours: 'pmTimeHours', minutes: 'pmTimeMinutes', seconds: 'pmTimeSeconds', location: 'pmRaceLocation', note: 'pmRaceNote' };
+
+// Ultra / other-distance races need the actual kilometres.
+function syncDistanceRow(typeId, rowId, inputId) {
+  const needsDistance = ['ultra', 'other'].includes($(`#${typeId}`).value);
+  $(`#${rowId}`).hidden = !needsDistance;
+  $(`#${inputId}`).required = needsDistance;
+}
 
 function readRaceFields(ids) {
   const field = key => $(`#${ids[key]}`);
@@ -801,12 +826,13 @@ function readRaceFields(ids) {
   const hours = Number(field('hours').value);
   const minutes = Number(field('minutes').value);
   const secondsPart = Number(field('seconds').value);
-  if (!name || !date || !DISTANCES[type] || !Number.isInteger(hours) || !Number.isInteger(minutes) || !Number.isInteger(secondsPart) || hours < 0 || hours > 99 || minutes < 0 || minutes > 59 || secondsPart < 0 || secondsPart > 59) {
-    return { error: '請確認賽事名稱、日期及有效的完賽時間（分與秒需介於 0–59）。' };
+  const distanceKm = ['ultra', 'other'].includes(type) ? Number(field('distance').value) : 0;
+  if (!name || !date || !DISTANCES[type] || (['ultra', 'other'].includes(type) && !(distanceKm >= 0.1 && distanceKm <= 1000)) || !Number.isInteger(hours) || !Number.isInteger(minutes) || !Number.isInteger(secondsPart) || hours < 0 || hours > 99 || minutes < 0 || minutes > 59 || secondsPart < 0 || secondsPart > 59) {
+    return { error: '請確認賽事名稱、日期及有效的完賽時間（分與秒需介於 0–59）；超馬與其他距離需填寫實際公里數（0.1–1000）。' };
   }
   const totalSeconds = hours * 3600 + minutes * 60 + secondsPart;
   if (!totalSeconds) return { error: '完賽時間必須大於 0。' };
-  return { item: { name, date, type, seconds: totalSeconds, location: field('location').value.trim(), note: field('note').value.trim() } };
+  return { item: { name, date, type, ...(distanceKm ? { distanceKm: Math.round(distanceKm * 100) / 100 } : {}), seconds: totalSeconds, location: field('location').value.trim(), note: field('note').value.trim() } };
 }
 
 async function saveRace(event) {
@@ -860,7 +886,7 @@ async function savePersonRace(event) {
       saveLocalRecords();
       renderAll();
     }
-    ['pmRaceName', 'pmRaceLocation', 'pmRaceNote', 'pmTimeHours', 'pmTimeMinutes', 'pmTimeSeconds'].forEach(id => { $(`#${id}`).value = ''; });
+    ['pmRaceName', 'pmRaceLocation', 'pmRaceNote', 'pmRaceDistance', 'pmTimeHours', 'pmTimeMinutes', 'pmTimeSeconds'].forEach(id => { $(`#${id}`).value = ''; });
     showToast(`已為 ${person.name} 新增「${saved.name}」。`);
     $('#pmRaceName').focus();
   } catch (err) {
@@ -936,7 +962,7 @@ function parseImportedRows(rows, sheetName = '') {
     const get = key => indexes[key] >= 0 ? row[indexes[key]] : '';
     const rawType = String(get('type') || '').toLowerCase();
     const sheetType = /半|half|21(?:\.0975|\.1)?\s*k/i.test(sheetName) ? 'half' : /全|full|42(?:\.195)?\s*k|marathon/i.test(sheetName) ? 'full' : '';
-    const type = /全馬|42\.195|42,195|full|marathon/.test(rawType) ? 'full' : /半馬|21\.0975|21\.1|half|21k/.test(rawType) ? 'half' : sheetType;
+    const type = /全馬|42\.195|42,195|full|marathon/.test(rawType) ? 'full' : /半馬|21\.0975|21\.1|half|21k/.test(rawType) ? 'half' : /10\s*k|10公里/.test(rawType) ? '10k' : /(^|[^\d.])5\s*k|(^|[^\d.])5公里/.test(rawType) ? '5k' : sheetType;
     const rawDate = get('date');
     let date = '';
     if (rawDate instanceof Date && !Number.isNaN(rawDate.getTime())) date = `${rawDate.getFullYear()}-${String(rawDate.getMonth() + 1).padStart(2, '0')}-${String(rawDate.getDate()).padStart(2, '0')}`;
@@ -1018,10 +1044,10 @@ function exportRecords() {
   const rows = sortedRecords().map(record => ({
     '賽事名稱': record.name,
     '日期': record.date,
-    '距離組別': record.type === 'full' ? '全馬' : '半馬',
-    '距離(KM)': DISTANCES[record.type],
+    '距離組別': TYPE_LABELS[record.type] || '其他距離',
+    '距離(KM)': distanceOf(record),
     '完賽時間': formatTime(record.seconds),
-    '平均配速(/KM)': formatPace(record.seconds, record.type),
+    '平均配速(/KM)': formatPace(record.seconds, record),
     '地點': record.location || '',
     '筆記': record.note || ''
   }));
@@ -1083,6 +1109,8 @@ function init() {
   $('#raceModal').addEventListener('click', event => { if (event.target === $('#raceModal')) closeModal(); });
   document.addEventListener('keydown', event => { if (event.key === 'Escape') closeModal(); });
   $('#raceForm').addEventListener('submit', saveRace);
+  $('#raceType').addEventListener('change', () => syncDistanceRow('raceType', 'raceDistanceRow', 'raceDistance'));
+  $('#pmRaceType')?.addEventListener('change', () => syncDistanceRow('pmRaceType', 'pmRaceDistanceRow', 'pmRaceDistance'));
   $('#personSelect')?.addEventListener('change', event => {
     const person = people.find(item => item.id === event.target.value);
     if (person) selectPerson(person);
