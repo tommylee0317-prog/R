@@ -45,6 +45,14 @@
 
 .install-app { margin-top: 12px; width: 100%; }
 
+/* Back / home buttons: phone layout only */
+.topbar .nav-back, .topbar .nav-home { display: none; font-size: 20px; line-height: 1; }
+.topbar .nav-back:disabled { opacity: .35; cursor: default; }
+@media (max-width: 850px) {
+  .topbar .nav-back, .topbar .nav-home { display: grid; margin-right: 8px; }
+  .topbar .breadcrumb span, .topbar .breadcrumb i { display: none; }
+}
+
 @media (max-width: 800px) {
   .goal-grid { grid-template-columns: 1fr; }
 }

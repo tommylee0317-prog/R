@@ -120,6 +120,70 @@
     if (!people.some(item => item.id === personId)) cleanupPerson(personId);
     return result;
   };
+  /* ---------- Mobile navigation: back / home buttons + browser history ---------- */
+  const VIEW_IDS = ['dashboard', 'records', 'analytics', 'paceCalculator', 'raceList', 'people'];
+  const baseSetView = window.setView;
+
+  function updateNavButtons() {
+    const back = $('#navBack');
+    if (!back) return;
+    const canGoBack = $('#sidebar')?.classList.contains('open') || (history.state?.idx ?? 0) > 0 || activeView !== 'dashboard';
+    back.disabled = !canGoBack;
+  }
+
+  // Every view change adds a history entry, so the phone's own back button (and swipe-back) steps through views.
+  window.setView = function setViewWithHistory(view) {
+    baseSetView(view);
+    window.scrollTo(0, 0);
+    if (history.state?.view !== view) {
+      try { history.pushState({ view, idx: (history.state?.idx ?? 0) + 1 }, '', `#${view}`); } catch {}
+    }
+    updateNavButtons();
+  };
+
+  window.addEventListener('popstate', event => {
+    if (!VIEW_IDS.includes(event.state?.view)) return;
+    baseSetView(event.state.view);
+    window.scrollTo(0, 0);
+    updateNavButtons();
+  });
+
+  function goBack() {
+    const sidebar = $('#sidebar');
+    if (sidebar?.classList.contains('open')) {
+      sidebar.classList.remove('open');
+    } else if ($('#raceModal')?.classList.contains('open')) {
+      closeModal();
+    } else if ((history.state?.idx ?? 0) > 0) {
+      history.back();
+    } else if (activeView !== 'dashboard') {
+      window.setView('dashboard');
+    }
+    updateNavButtons();
+  }
+
+  function goHome() {
+    $('#sidebar')?.classList.remove('open');
+    if (activeView !== 'dashboard') window.setView('dashboard');
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+    updateNavButtons();
+  }
+
+  function initNavigation() {
+    const hashView = location.hash.slice(1);
+    const startView = VIEW_IDS.includes(hashView) ? hashView : 'dashboard';
+    try { history.replaceState({ view: startView, idx: 0 }, '', `#${startView}`); } catch {}
+    if (startView !== 'dashboard') baseSetView(startView);
+    $('#navBack')?.addEventListener('click', goBack);
+    $('#navHome')?.addEventListener('click', goHome);
+    $('#mobileMenu')?.addEventListener('click', () => setTimeout(updateNavButtons, 0));
+    $('.brand')?.addEventListener('click', event => {
+      event.preventDefault();
+      goHome();
+    });
+    updateNavButtons();
+  }
+
   /* ---------- Backup / restore (demo build: all data lives in this browser) ---------- */
   const cleanText = (value, max) => String(value ?? '').slice(0, max);
 
@@ -234,6 +298,7 @@
 
   /* ---------- Wire up the DOM ---------- */
   function init() {
+    initNavigation();
     $('#goalForm')?.addEventListener('submit', saveGoal);
 
     $('#countdownList')?.addEventListener('click', event => {
