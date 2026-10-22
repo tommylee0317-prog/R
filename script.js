@@ -35,8 +35,10 @@ function loadRecords(storageKey = STORAGE_KEY, useEmbedded = true) {
   }
 }
 
+const isDefaultPerson = person => person?.id === '1';
+
 function personStorageKey(person) {
-  return person?.name?.trim().toLocaleLowerCase() === 'tommy'
+  return isDefaultPerson(person)
     ? STORAGE_KEY
     : `${STORAGE_KEY}-person-${person?.id || 'unknown'}`;
 }
@@ -326,12 +328,24 @@ async function demoApiRequest(path, options) {
   const method = (options.method || 'GET').toUpperCase();
   const params = new URLSearchParams(query);
   const newId = () => `demo-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
-  if (pathname === '/people') {
+  if (pathname === '/people' || /^\/people\/\d+$/.test(pathname)) {
     const list = demoPeople();
     if (method === 'GET') return list;
+    const target = pathname === '/people' ? null : list.find(item => item.id === pathname.split('/')[2]);
+    if (pathname !== '/people' && !target) throw new Error('找不到指定的人員。');
+    if (method === 'DELETE') {
+      if (list.length <= 1) throw new Error('至少需要保留一位人員，無法刪除。');
+      localStorage.setItem(DEMO_PEOPLE_KEY, JSON.stringify(list.filter(item => item !== target)));
+      return { id: target.id };
+    }
     const name = String(JSON.parse(options.body || '{}').name || '').trim();
     if (!name || name.length > 30) throw new Error('人員名稱為必填，且不可超過 30 個字元。');
-    if (list.some(person => person.name.toLocaleLowerCase() === name.toLocaleLowerCase())) throw new Error('已有相同名稱的人員。');
+    if (list.some(person => person !== target && person.name.toLocaleLowerCase() === name.toLocaleLowerCase())) throw new Error('已有相同名稱的人員。');
+    if (target) {
+      const renamed = { ...target, name };
+      localStorage.setItem(DEMO_PEOPLE_KEY, JSON.stringify(list.map(item => (item === target ? renamed : item))));
+      return renamed;
+    }
     const person = { id: String(Math.max(0, ...list.map(item => Number(item.id) || 0)) + 1), name };
     localStorage.setItem(DEMO_PEOPLE_KEY, JSON.stringify([...list, person]));
     return person;
@@ -339,7 +353,7 @@ async function demoApiRequest(path, options) {
   const person = demoPeople().find(item => item.id === params.get('personId'));
   if (!person) throw new Error('找不到指定的人員。');
   const id = pathname.replace(/^\//, '');
-  if (method === 'GET') return loadRecords(personStorageKey(person), person.name.toLocaleLowerCase() === 'tommy');
+  if (method === 'GET') return loadRecords(personStorageKey(person), isDefaultPerson(person));
   if (method === 'DELETE') return null;
   const body = JSON.parse(options.body || '{}');
   if (method === 'PUT') return { ...body, id };
@@ -428,7 +442,7 @@ async function selectPerson(person) {
   $('#personSelect').value = person.id;
   renderPeople();
   try { localStorage.setItem(ACTIVE_PERSON_KEY, person.id); } catch {}
-  records = loadRecords(personStorageKey(person), person.name.toLocaleLowerCase() === 'tommy');
+  records = loadRecords(personStorageKey(person), isDefaultPerson(person));
   updatePersonPresentation();
   renderAll();
   await loadRacesFromDatabase();
@@ -445,7 +459,8 @@ function renderPeople() {
   list.innerHTML = people.length
     ? people.map(person => {
       const active = activePerson?.id === person.id;
-      return `<li class="people-item${active ? ' active' : ''}"><span class="avatar">${escapeHtml([...person.name][0] || '?')}</span><strong>${escapeHtml(person.name)}</strong>${active ? '<span class="people-badge">目前使用中</span>' : `<button type="button" class="button button-outline people-switch" data-person-id="${escapeHtml(person.id)}">切換</button>`}</li>`;
+      const actions = `<button type="button" class="button button-outline people-action" data-rename-person="${escapeHtml(person.id)}" aria-label="修改 ${escapeHtml(person.name)}">改名</button><button type="button" class="button button-outline people-action people-delete" data-delete-person="${escapeHtml(person.id)}" aria-label="刪除 ${escapeHtml(person.name)}"${people.length <= 1 ? ' disabled title="至少需要保留一位人員"' : ''}>刪除</button>`;
+      return `<li class="people-item${active ? ' active' : ''}"><span class="avatar">${escapeHtml([...person.name][0] || '?')}</span><strong>${escapeHtml(person.name)}</strong>${active ? '<span class="people-badge">目前使用中</span>' : `<button type="button" class="button button-outline people-switch" data-person-id="${escapeHtml(person.id)}">切換</button>`}${actions}</li>`;
     }).join('')
     : '<li class="people-empty">尚無人員，請先新增。</li>';
   $('#peopleRaceTitle').textContent = activePerson ? `替 ${activePerson.name} 新增賽事紀錄` : '新增賽事紀錄';
@@ -455,6 +470,60 @@ function renderPeople() {
 function openPeopleView() {
   setView('people');
   setTimeout(() => $('#personNameInput')?.focus(), 50);
+}
+
+function refreshPersonSelector() {
+  const selector = $('#personSelect');
+  selector.innerHTML = people.map(person => `<option value="${escapeHtml(person.id)}">${escapeHtml(person.name)}</option>`).join('');
+  selector.disabled = people.length === 0;
+  if (activePerson) selector.value = activePerson.id;
+}
+
+async function renamePerson(personId) {
+  const person = people.find(item => item.id === personId);
+  if (!person) return;
+  const input = prompt('修改人員名稱：', person.name);
+  const name = input?.trim();
+  if (!name || name === person.name) return;
+  try {
+    const saved = await apiRequest(`/people/${encodeURIComponent(person.id)}`, { method: 'PUT', body: JSON.stringify({ name }) });
+    Object.assign(person, { name: saved.name });
+    refreshPersonSelector();
+    if (activePerson?.id === person.id) updatePersonPresentation();
+    renderPeople();
+    showToast(`已將人員改名為「${saved.name}」。`);
+  } catch (error) {
+    showToast(error.message || '修改人員失敗，請稍後再試。');
+  }
+}
+
+async function deletePerson(personId) {
+  const person = people.find(item => item.id === personId);
+  if (!person) return;
+  if (people.length <= 1) {
+    showToast('至少需要保留一位人員，無法刪除。');
+    return;
+  }
+  if (!confirm(`確定刪除「${person.name}」嗎？\n這位人員的所有賽事紀錄也會一併刪除，且無法復原。`)) return;
+  try {
+    await apiRequest(`/people/${encodeURIComponent(person.id)}`, { method: 'DELETE' });
+    try { localStorage.removeItem(personStorageKey(person)); } catch {}
+    people = people.filter(item => item.id !== person.id);
+    const wasActive = activePerson?.id === person.id;
+    if (wasActive) {
+      activePerson = null;
+      records = [];
+    }
+    refreshPersonSelector();
+    renderPeople();
+    showToast(`已刪除「${person.name}」及其賽事紀錄。`);
+    if (wasActive) {
+      const next = people.find(item => isDefaultPerson(item)) || people[0];
+      await selectPerson(next);
+    }
+  } catch (error) {
+    showToast(error.message || '刪除人員失敗，請稍後再試。');
+  }
 }
 
 async function savePerson(event) {
@@ -962,6 +1031,10 @@ function init() {
     if (person) selectPerson(person);
   });
   $('#peopleList')?.addEventListener('click', event => {
+    const renameButton = event.target.closest('[data-rename-person]');
+    const deleteButton = event.target.closest('[data-delete-person]');
+    if (renameButton) return renamePerson(renameButton.dataset.renamePerson);
+    if (deleteButton) return deletePerson(deleteButton.dataset.deletePerson);
     const button = event.target.closest('[data-person-id]');
     const person = button && people.find(item => item.id === button.dataset.personId);
     if (person) selectPerson(person);
