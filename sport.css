@@ -74,15 +74,6 @@
   position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .6;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.3' stroke-width='3'%3E%3Cellipse cx='470' cy='360' rx='430' ry='270'/%3E%3Cellipse cx='470' cy='360' rx='360' ry='222'/%3E%3Cellipse cx='470' cy='360' rx='290' ry='176'/%3E%3Cellipse cx='470' cy='360' rx='220' ry='130'/%3E%3C/g%3E%3C/svg%3E") right -60px bottom -70px / 640px auto no-repeat;
 }
-.hero-run { position: absolute; left: 0; right: 0; bottom: 12px; height: 30px; z-index: 2; overflow: hidden; pointer-events: none; }
-.hero-run::before {
-  content: ''; position: absolute; left: 0; right: 0; bottom: 3px; height: 3px;
-  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .6) 0 16px, transparent 16px 32px);
-  animation: lane-move 1s linear infinite;
-}
-.hero-run .ico { position: absolute; bottom: 6px; left: -30px; width: 26px; height: 26px; color: var(--sport-yellow); animation: hero-run 8s linear infinite; }
-@keyframes lane-move { to { background-position-x: -32px; } }
-@keyframes hero-run { from { left: -30px; } to { left: 100%; } }
 :root .rainbow-spectrum, :root[data-theme="dark"] .rainbow-spectrum { height: 7px; background: var(--rainbow); }
 :root .challenge-copy h2 span, :root .challenge-distance strong span { color: var(--sport-yellow); }
 :root .challenge-pulse { background: var(--sport-orange); box-shadow: 0 0 0 5px rgba(255, 107, 26, .28); }
@@ -147,13 +138,6 @@
 :root .race-table-link { color: var(--tpm-blue, #00519b); }
 .race-source-tag { background: linear-gradient(135deg, var(--sport-cyan), var(--sport-purple)); color: #fff; }
 
-/* ---- Footer: finish-line checker strip ---- */
-:root .page-footer { position: relative; overflow: hidden; padding-top: 24px; }
-:root .page-footer::before {
-  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 8px;
-  background: conic-gradient(#fff 25%, #0b1d3d 0 50%, #fff 0 75%, #0b1d3d 0) 0 0 / 16px 16px;
-}
-
 /* Buttons + people */
 :root .button { transition: transform .15s, box-shadow .15s, background .15s; }
 :root .button:hover { transform: translateY(-1px); }
@@ -165,8 +149,6 @@
 :root .people-item:nth-child(4n + 4) .avatar { background: linear-gradient(135deg, var(--sport-purple), var(--sport-pink)); }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-run::before, .hero-run .ico { animation: none !important; }
-  .hero-run .ico { left: 12%; }
   :root .pb-card:hover, :root .stat-card:hover, :root .analytics-kpi:hover, :root .button:hover { transform: none; }
 }
 @media (max-width: 850px) {
@@ -175,5 +157,4 @@
 }
 @media (max-width: 600px) {
   :root .page-heading::after { display: none; }
-  .hero-run { bottom: 6px; }
 }
