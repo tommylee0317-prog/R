@@ -38,6 +38,11 @@
 .people-item .avatar { flex: none; width: 34px; height: 34px; border-radius: var(--radius, 6px); background: var(--green-dark); color: #fff; display: grid; place-items: center; font-weight: 800; }
 .people-badge { padding: 3px 8px; border-radius: 2px; background: var(--green); color: #fff; font-size: 12px; font-weight: 700; }
 .people-switch { min-height: 32px; padding: 0 12px; }
+.people-action { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.people-delete { color: var(--red, #d0202e); border-color: var(--red, #d0202e); }
+.people-delete:hover { background: var(--red, #d0202e); border-color: var(--red, #d0202e); color: #fff; }
+.people-delete:disabled { opacity: .4; cursor: not-allowed; }
+.people-item { flex-wrap: wrap; }
 .people-empty { padding: 14px; color: var(--muted); text-align: center; }
 .people-add { padding-top: 16px; border-top: 1px solid var(--line); }
 .people-add-row { display: flex; gap: 10px; }
