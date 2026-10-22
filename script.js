@@ -7,6 +7,12 @@ const DISTANCES = { full: 42.195, half: 21.0975 };
 const DEMO_MODE = Boolean(document.querySelector('meta[name="runlog-demo"]')) || location.hostname.endsWith('.github.io');
 const STORE_LABEL = DEMO_MODE ? '瀏覽器（展示版）' : 'Oracle';
 const DEMO_PEOPLE_KEY = 'runlog-demo-people-v1';
+// Live: Tomcat proxies both upstream sites. Demo (static): a GitHub Action refreshes data-*.html copies every few hours.
+const RACE_SOURCE_URLS = DEMO_MODE
+  ? { taipei: () => 'data-contest.html', ctrra: year => `data-ctrra-${year}.html` }
+  : { taipei: () => 'api/contests', ctrra: year => `api/contests?source=ctrra&year=${year}` };
+const RACE_SOURCE_LABELS = { taipei: '跑者廣場', ctrra: '路協' };
+const RACE_REFRESH_MS = 15 * 60 * 1000;
 const KNOWN_RACE_FALLBACK = Array.isArray(window.RACE_SNAPSHOT) ? window.RACE_SNAPSHOT : [];
 let records = loadRecords();
 let people = [];
@@ -15,6 +21,7 @@ let activeView = 'dashboard';
 let activeFilter = 'all';
 let sourceRaces = [];
 let raceListLoaded = false;
+let raceListLoadedAt = 0;
 let raceListLoading = false;
 let toastTimer;
 
@@ -104,6 +111,7 @@ function setView(view) {
   $('#sidebar').classList.remove('open');
   if (view === 'analytics') renderAnalytics();
   if (view === 'records') renderRecords();
+  if (view === 'raceList' && raceListLoaded && Date.now() - raceListLoadedAt > RACE_REFRESH_MS) loadRaceSource(true);
 }
 
 function parseContestRows(markup) {
@@ -155,10 +163,52 @@ function parseContestRows(markup) {
     races.push({
       name, date,
       location,
-      mileage, url
+      mileage, url,
+      source: 'taipei'
     });
   });
   return [...new Map(races.map(race => [`${race.date}|${race.name}`, race])).values()]
+    .sort((a, b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name, 'zh-TW'));
+}
+
+function localDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+// Parses the CTRRA (sportsnet.org.tw) calendar. Rows are [logo, no., "M/D(週)", name link, location, categories]; the year comes from the page requested.
+function parseCtrraRows(markup, year) {
+  const pageUrl = 'https://www.sportsnet.org.tw/schedule.php';
+  const sourceDocument = new DOMParser().parseFromString(markup, 'text/html');
+  const todayKey = localDateKey(new Date());
+  const races = [];
+  sourceDocument.querySelectorAll('table.races tr').forEach(row => {
+    const cells = [...row.cells];
+    if (cells.length < 6) return;
+    const dateMatch = cells[2].textContent.match(/(\d{1,2})\s*\/\s*(\d{1,2})/);
+    const link = cells[3].querySelector('a');
+    const name = (link || cells[3]).textContent.replace(/\s+/g, ' ').trim();
+    if (!name || !dateMatch) return;
+    const month = Number(dateMatch[1]);
+    const day = Number(dateMatch[2]);
+    if (month < 1 || month > 12 || day < 1 || day > 31) return;
+    const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    if (date < todayKey) return;
+    let url = pageUrl;
+    try {
+      const parsedUrl = new URL(link?.getAttribute('href') || pageUrl, pageUrl);
+      if (['http:', 'https:'].includes(parsedUrl.protocol)) url = parsedUrl.href;
+    } catch {}
+    races.push({
+      name, date, url, source: 'ctrra',
+      location: cells[4].textContent.replace(/\s+/g, ' ').trim(),
+      mileage: cells[5].textContent.replace(/\s+/g, ' ').trim().replace(/\s*\/\s*/g, '、')
+    });
+  });
+  return races;
+}
+
+function mergeRaces(...lists) {
+  return [...new Map(lists.flat().map(race => [`${race.date}|${race.name}`, race])).values()]
     .sort((a, b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name, 'zh-TW'));
 }
 
@@ -179,7 +229,7 @@ function renderRaceList() {
   body.innerHTML = monthRaces.length
     ? monthRaces.map(race => `
       <tr>
-        <td data-label="賽事名稱"><a class="race-table-link" href="${escapeHtml(race.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(race.name)} <span aria-hidden="true">↗</span></a></td>
+        <td data-label="賽事名稱"><a class="race-table-link" href="${escapeHtml(race.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(race.name)} <span aria-hidden="true">↗</span></a>${RACE_SOURCE_LABELS[race.source] ? ` <span class="race-source-tag">${RACE_SOURCE_LABELS[race.source]}</span>` : ''}</td>
         <td data-label="日期">${formatDate(race.date, { calendar: 'gregory', year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' })}</td>
         <td data-label="地點">${escapeHtml(race.location || '—')}</td>
         <td data-label="里程">${escapeHtml(race.mileage || '—')}</td>
@@ -221,26 +271,39 @@ async function loadRaceSource(force = false) {
   const monthSelect = $('#raceMonthSelect');
   const previousYear = yearSelect.value;
   const previousMonth = monthSelect.value;
-  status.textContent = '正在同步跑者廣場賽事…';
+  status.textContent = '正在同步跑者廣場與路協賽事…';
   yearSelect.disabled = true;
   monthSelect.disabled = true;
   try {
-    const sourceUrl = new URL('api/contests', document.baseURI);
-    const response = await fetch(sourceUrl, { headers: { Accept: 'text/html' } });
-    if (!response.ok) throw new Error(`來源回應 HTTP ${response.status}`);
-    const races = parseContestRows(await response.text());
+    const thisYear = new Date().getFullYear();
+    const fetchSource = async path => {
+      const response = await fetch(new URL(path, document.baseURI), { headers: { Accept: 'text/html' }, cache: 'no-cache' });
+      if (!response.ok) throw new Error(`來源回應 HTTP ${response.status}`);
+      return response.text();
+    };
+    const [taipeiResult, ...ctrraResults] = await Promise.allSettled([
+      fetchSource(RACE_SOURCE_URLS.taipei()).then(parseContestRows),
+      ...[thisYear, thisYear + 1].map(year => fetchSource(RACE_SOURCE_URLS.ctrra(year)).then(markup => parseCtrraRows(markup, year)))
+    ]);
+    const taipeiRaces = taipeiResult.status === 'fulfilled' ? taipeiResult.value : null;
+    const ctrraOk = ctrraResults.some(result => result.status === 'fulfilled');
+    const ctrraRaces = ctrraOk ? ctrraResults.flatMap(result => (result.status === 'fulfilled' ? result.value : [])) : null;
+    if (!taipeiRaces && !ctrraRaces) throw taipeiResult.reason || ctrraResults[0].reason;
+    const races = mergeRaces(taipeiRaces || [], ctrraRaces || []);
     sourceRaces = races;
     try { localStorage.setItem(RACE_SOURCE_STORAGE_KEY, JSON.stringify(races)); } catch {}
     raceListLoaded = true;
+    raceListLoadedAt = Date.now();
     setRaceMonthOptions(races, previousYear, previousMonth);
+    const detail = `跑者廣場 ${taipeiRaces ? `${taipeiRaces.length} 場` : '同步失敗'}、路協 ${ctrraRaces ? `${ctrraRaces.length} 場` : '同步失敗'}`;
     status.textContent = races.length
-      ? `已同步 ${races.length} 場未來賽事 · ${new Intl.DateTimeFormat('zh-TW', { hour: '2-digit', minute: '2-digit' }).format(new Date())} 更新`
-      : '同步完成，目前沒有未來賽事';
+      ? `已同步 ${races.length} 場未來賽事（${detail}）· ${new Intl.DateTimeFormat('zh-TW', { hour: '2-digit', minute: '2-digit' }).format(new Date())} 更新`
+      : `同步完成，目前沒有未來賽事（${detail}）`;
     renderRaceList();
   } catch (error) {
-    console.error('讀取跑者廣場賽事失敗：', error);
+    console.error('讀取賽事來源失敗：', error);
     const localToday = new Date();
-    const today = `${localToday.getFullYear()}-${String(localToday.getMonth() + 1).padStart(2, '0')}-${String(localToday.getDate()).padStart(2, '0')}`;
+    const today = localDateKey(localToday);
     let cachedRaces = [];
     try {
       const stored = JSON.parse(localStorage.getItem(RACE_SOURCE_STORAGE_KEY) || '[]');
@@ -248,7 +311,8 @@ async function loadRaceSource(force = false) {
         cachedRaces = stored.filter(race => race && race.date >= today).map(race => ({
           name: race.name, date: race.date, location: race.location || '',
           mileage: race.mileage || race.eventCategory || race.distances?.join('、') || '',
-          url: race.url || 'http://www.taipeimarathon.org.tw/contest.aspx'
+          url: race.url || 'http://www.taipeimarathon.org.tw/contest.aspx',
+          source: race.source
         }));
       }
     } catch {}
@@ -262,7 +326,7 @@ async function loadRaceSource(force = false) {
       sourceRaces = fallbackRaces;
       raceListLoaded = true;
       setRaceMonthOptions(fallbackRaces, previousYear, previousMonth);
-      status.textContent = '跑者廣場暫時無法同步，顯示暫存賽事；活動資訊請以官方公告為準';
+      status.textContent = '賽事來源暫時無法同步，顯示暫存賽事；活動資訊請以官方公告為準';
       renderRaceList();
     } else {
       yearSelect.disabled = false;

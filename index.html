@@ -48,6 +48,7 @@
             <button type="button" class="person-add" id="addPersonButton" aria-label="新增人員（開啟人員管理）" title="新增人員">＋</button>
           </div>
         </div>
+        <div class="sidebar-credit">Tommy 製作</div>
       </div>
     </aside>
 
@@ -191,7 +192,7 @@
 
       <section class="view" id="raceListView">
         <div class="page-heading compact-heading race-list-heading">
-          <div><div class="eyebrow"><span class="eyebrow-line"></span>FIND YOUR NEXT RACE</div><h1>可參加賽事</h1><p>參考跑者廣場全國賽會，整理未來路跑活動；選擇年月查詢，點選賽事名稱前往活動資訊／報名頁面。</p></div>
+          <div><div class="eyebrow"><span class="eyebrow-line"></span>FIND YOUR NEXT RACE</div><h1>可參加賽事</h1><p>整合跑者廣場全國賽會與中華民國路跑協會行事曆，整理未來路跑活動；選擇年月查詢，點選賽事名稱前往活動資訊／報名頁面。</p></div>
           <div class="race-source-links"><a class="button button-primary race-source-button" href="http://www.taipeimarathon.org.tw/contest.aspx" target="_blank" rel="noopener noreferrer">跑者廣場全國賽會 <span>↗</span></a><a class="button button-outline race-source-button" href="https://www.sportsnet.org.tw/schedule.php" target="_blank" rel="noopener noreferrer">中華民國路跑協會 <span>↗</span></a></div>
         </div>
         <div class="race-month-toolbar">
@@ -211,7 +212,7 @@
             <tbody id="raceListBody"><tr><td colspan="4">正在載入賽事資料…</td></tr></tbody>
           </table>
         </div>
-        <p class="race-list-note">賽事資料參考跑者廣場全國賽會；活動與報名資訊可能異動，請以各賽事官方公告為準。頁面亦提供中華民國路跑協會行事曆連結供參考。</p>
+        <p class="race-list-note">賽事資料整合自跑者廣場全國賽會與中華民國路跑協會行事曆，開啟本頁時自動更新；活動與報名資訊可能異動，請以各賽事官方公告為準。</p>
         <footer class="page-footer"><span>RUNLOG <b>·</b> FIND YOUR NEXT START LINE</span><span>報名與活動問題請洽各賽事主辦單位。</span></footer>
       </section>
     </main>
@@ -234,27 +235,14 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script type="application/json" id="initialRaceData">
   [
-    {"id":"seed-full-2026-09-20","name":"榮耀九三(石門水庫)","date":"2026-09-20","type":"full","seconds":12900,"location":"","note":"原表次數：十五馬 · 👑 PB 男總六 /男丙組第一"},
-    {"id":"seed-full-2026-07-26","name":"PAPAGO桃園","date":"2026-07-26","type":"full","seconds":18900,"location":"","note":"原表次數：十四馬"},
-    {"id":"seed-full-2026-03-15","name":"萬金石馬","date":"2026-03-15","type":"full","seconds":19560,"location":"","note":"原表次數：十三馬"},
-    {"id":"seed-full-2025-10-19","name":"烏來馬","date":"2025-10-19","type":"full","seconds":23280,"location":"","note":"原表次數：十二馬"},
-    {"id":"seed-full-2024-10-27","name":"長榮馬","date":"2024-10-27","type":"full","seconds":19020,"location":"","note":"原表次數：十一馬"},
-    {"id":"seed-full-2024-03-17","name":"萬金石馬","date":"2024-03-17","type":"full","seconds":15840,"location":"","note":"原表次數：十馬 · 🎂生日"},
-    {"id":"seed-full-2023-12-17","name":"臺北馬","date":"2023-12-17","type":"full","seconds":15660,"location":"","note":"原表次數：九馬"},
-    {"id":"seed-full-2023-11-12","name":"渣打馬","date":"2023-11-12","type":"full","seconds":15180,"location":"","note":"原表次數：八馬"},
-    {"id":"seed-full-2023-10-29","name":"觀音山馬","date":"2023-10-29","type":"full","seconds":20340,"location":"","note":"原表次數：七馬"},
-    {"id":"seed-full-2022-12-10","name":"太魯閣馬","date":"2022-12-10","type":"full","seconds":17460,"location":"","note":"原表次數：六馬"},
-    {"id":"seed-full-2022-03-05","name":"太魯閣馬","date":"2022-03-05","type":"full","seconds":13380,"location":"","note":"原表次數：五馬"},
-    {"id":"seed-full-2021-12-25","name":"環跑台北67K","date":"2021-12-25","type":"full","seconds":34740,"location":"","note":"原表次數：四馬 · 超馬 🎖️"},
-    {"id":"seed-full-2021-12-19","name":"臺北馬","date":"2021-12-19","type":"full","seconds":13320,"location":"","note":"原表次數：三馬"},
-    {"id":"seed-full-2020-11-07","name":"太魯閣馬","date":"2020-11-07","type":"full","seconds":15120,"location":"","note":"原表次數：二馬"},
-    {"id":"seed-full-2019-11-02","name":"太魯閣馬","date":"2019-11-02","type":"full","seconds":16740,"location":"","note":"原表次數：初馬"},
-    {"id":"seed-half-2016-01-24","name":"渣打馬拉松","date":"2016-01-24","type":"half","seconds":7020,"location":"","note":"原表次數：1 · 初半馬 🥶 霸王級寒流"},
-    {"id":"seed-half-2020-12-20","name":"臺北馬拉松","date":"2020-12-20","type":"half","seconds":6060,"location":"","note":"原表次數：2"},
-    {"id":"seed-half-2021-04-08","name":"復活節半馬","date":"2021-04-08","type":"half","seconds":5820,"location":"","note":"原表次數：3 · 凸台 總八🏆"},
-    {"id":"seed-half-2021-11-14","name":"統一發票盃","date":"2021-11-14","type":"half","seconds":6000,"location":"","note":"原表次數：4"},
-    {"id":"seed-half-2022-04-16","name":"復活節半馬","date":"2022-04-16","type":"half","seconds":5760,"location":"","note":"原表次數：5 · 👑 PB 總11"},
-    {"id":"seed-half-2025-10-26","name":"長榮航空半馬","date":"2025-10-26","type":"half","seconds":6900,"location":"","note":"原表次數：6"}
+    {"id":"sample-full-2026-03-15","name":"範例｜春季全程馬拉松","date":"2026-03-15","type":"full","seconds":15300,"location":"臺北市","note":"範例資料：這是示範用的紀錄，可自行修改或刪除。"},
+    {"id":"sample-full-2025-12-21","name":"範例｜城市馬拉松","date":"2025-12-21","type":"full","seconds":16080,"location":"新北市","note":"範例資料"},
+    {"id":"sample-full-2025-03-16","name":"範例｜河濱馬拉松","date":"2025-03-16","type":"full","seconds":16920,"location":"桃園市","note":"範例資料"},
+    {"id":"sample-full-2024-11-10","name":"範例｜秋季全馬","date":"2024-11-10","type":"full","seconds":17640,"location":"臺中市","note":"範例資料 · 第一次全馬"},
+    {"id":"sample-half-2026-01-18","name":"範例｜新年半程馬拉松","date":"2026-01-18","type":"half","seconds":6600,"location":"臺北市","note":"範例資料"},
+    {"id":"sample-half-2025-10-26","name":"範例｜公園半馬","date":"2025-10-26","type":"half","seconds":6840,"location":"高雄市","note":"範例資料"},
+    {"id":"sample-half-2025-04-13","name":"範例｜春季半馬","date":"2025-04-13","type":"half","seconds":7080,"location":"新竹縣","note":"範例資料"},
+    {"id":"sample-half-2024-06-02","name":"範例｜海岸半程馬拉松","date":"2024-06-02","type":"half","seconds":7380,"location":"花蓮縣","note":"範例資料 · 第一次半馬"}
   ]
   </script>
   <script src="xlsx.full.min.js"></script>

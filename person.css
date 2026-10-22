@@ -43,6 +43,9 @@
 .people-delete:hover { background: var(--red, #d0202e); border-color: var(--red, #d0202e); color: #fff; }
 .people-delete:disabled { opacity: .4; cursor: not-allowed; }
 .people-item { flex-wrap: wrap; }
+
+.sidebar-credit { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, .18); color: #b9c8de; font-size: 12px; letter-spacing: .08em; text-align: left; }
+.race-source-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 2px; background: var(--green-pale); color: var(--green-dark); font-size: 11px; font-weight: 700; vertical-align: middle; white-space: nowrap; }
 .people-empty { padding: 14px; color: var(--muted); text-align: center; }
 .people-add { padding-top: 16px; border-top: 1px solid var(--line); }
 .people-add-row { display: flex; gap: 10px; }
