@@ -4,31 +4,31 @@
  */
 :root {
   --sport-orange: #ff6b1a;
-  --sport-yellow: #ffbf1f;
-  --sport-green: #17b26a;
-  --sport-cyan: #1aa7ec;
-  --sport-purple: #7c5cff;
-  --sport-pink: #ff4d7d;
+  --sport-yellow: #ff6b1a;
+  --sport-green: #00519b;
+  --sport-cyan: #00519b;
+  --sport-purple: #00519b;
+  --sport-pink: #ff6b1a;
   --full-color: var(--sport-orange);
-  --rainbow: linear-gradient(90deg, var(--sport-orange) 0 25%, var(--sport-yellow) 25% 50%, var(--sport-green) 50% 75%, var(--sport-cyan) 75%);
+  --rainbow: linear-gradient(90deg, var(--sport-orange) 0 50%, var(--sport-cyan) 50%);
   --runner-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='64 60 244 248'%3E%3Cg transform='translate(-28 32)' fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M178 100 146 139' stroke-width='21'/%3E%3Cpath d='M237 104 269 143Q273 148 281 148H313' stroke-width='22'/%3E%3Cpath d='M181 151 160 181 112 257' stroke-width='23'/%3E%3Cpath d='M194 157 222 177 249 193Q254 197 248 203L199 220' stroke-width='23'/%3E%3Cpath d='M174 94Q180 87 190 87H232Q244 87 251 98L272 132 249 155 231 125 211 153Q201 166 187 159L177 154Q166 148 171 135L194 105H181Z' fill='%23000' stroke='none'/%3E%3Ccircle cx='257' cy='61' r='22' fill='%23000' stroke='none'/%3E%3C/g%3E%3C/svg%3E");
 }
 :root[data-theme="dark"] {
   --sport-orange: #ff8a4c;
-  --sport-yellow: #ffd04d;
-  --sport-green: #3ed598;
-  --sport-cyan: #4cc3ff;
-  --sport-purple: #a38bff;
-  --sport-pink: #ff7a9e;
+  --sport-yellow: #ff8a4c;
+  --sport-green: #5fa8ff;
+  --sport-cyan: #5fa8ff;
+  --sport-purple: #5fa8ff;
+  --sport-pink: #ff8a4c;
   --full-color: var(--sport-orange);
-  --rainbow: linear-gradient(90deg, var(--sport-orange) 0 25%, var(--sport-yellow) 25% 50%, var(--sport-green) 50% 75%, var(--sport-cyan) 75%);
+  --rainbow: linear-gradient(90deg, var(--sport-orange) 0 50%, var(--sport-cyan) 50%);
 }
 
 .ico { display: inline-block; width: 1.2em; height: 1.2em; flex: none; vertical-align: -.2em; }
 
 /* ---- Top bar + section headings: colour stripes ---- */
-:root .topbar { border-bottom: 3px solid; border-image: linear-gradient(90deg, var(--sport-orange), var(--sport-yellow), var(--sport-green), var(--sport-cyan), var(--sport-purple)) 1; }
-:root .section-heading, :root[data-theme="dark"] .section-heading { border-bottom: 3px solid; border-image: linear-gradient(90deg, var(--sport-orange), var(--sport-yellow) 35%, var(--sport-green) 65%, var(--sport-cyan)) 1; }
+:root .topbar { border-bottom: 3px solid; border-image: linear-gradient(90deg, var(--sport-orange), var(--sport-cyan)) 1; }
+:root .section-heading, :root[data-theme="dark"] .section-heading { border-bottom: 3px solid; border-image: linear-gradient(90deg, var(--sport-orange), var(--sport-cyan)) 1; }
 :root .page-heading .eyebrow-line { width: 44px; height: 5px; border-radius: 3px; background: var(--rainbow); }
 :root .section-kicker { color: var(--sport-orange); }
 :root[data-theme="dark"] .section-kicker { color: var(--sport-orange); }
@@ -46,12 +46,8 @@
 
 /* ---- Sidebar: coloured sport icons ---- */
 .nav-item .ico { width: 20px; height: 20px; }
-:root .nav-item[data-view="dashboard"] .ico { color: var(--sport-cyan); }
-:root .nav-item[data-view="records"] .ico { color: var(--sport-orange); }
-:root .nav-item[data-view="analytics"] .ico { color: var(--sport-green); }
-:root .nav-item[data-view="paceCalculator"] .ico { color: var(--sport-yellow); }
-:root .nav-item[data-view="raceList"] .ico { color: var(--sport-pink); }
-:root .nav-item[data-view="people"] .ico { color: var(--sport-purple); }
+/* One icon colour for the whole menu keeps the sidebar calm */
+:root .nav-item .ico { color: #8fc1ff; }
 :root .nav-item.active .ico, :root[data-theme="dark"] .nav-item.active .ico { color: #fff; }
 :root .nav-item { transition: background .2s, padding-left .2s; }
 :root .nav-item:hover { padding-left: 16px; }
@@ -60,14 +56,12 @@
 /* ---- Hero: lane graphics, animated runner on a moving lane, vivid ribbon ---- */
 :root .challenge-hero {
   background:
-    radial-gradient(ellipse at 88% 100%, rgba(255, 107, 26, .38), transparent 46%),
-    radial-gradient(ellipse at 6% 0%, rgba(26, 167, 236, .28), transparent 42%),
+    radial-gradient(ellipse at 88% 100%, rgba(255, 107, 26, .3), transparent 46%),
     linear-gradient(105deg, #001a45 0%, var(--navy, #002158) 38%, var(--tpm-blue, #00519b) 100%);
 }
 :root[data-theme="dark"] .challenge-hero {
   background:
-    radial-gradient(ellipse at 88% 100%, rgba(255, 138, 76, .32), transparent 46%),
-    radial-gradient(ellipse at 6% 0%, rgba(76, 195, 255, .22), transparent 42%),
+    radial-gradient(ellipse at 88% 100%, rgba(255, 138, 76, .26), transparent 46%),
     linear-gradient(105deg, #020b1d 0%, #07204a 45%, #0b4a8f 100%);
 }
 .hero-lanes {
@@ -75,78 +69,68 @@
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.3' stroke-width='3'%3E%3Cellipse cx='470' cy='360' rx='430' ry='270'/%3E%3Cellipse cx='470' cy='360' rx='360' ry='222'/%3E%3Cellipse cx='470' cy='360' rx='290' ry='176'/%3E%3Cellipse cx='470' cy='360' rx='220' ry='130'/%3E%3C/g%3E%3C/svg%3E") right -60px bottom -70px / 640px auto no-repeat;
 }
 :root .rainbow-spectrum, :root[data-theme="dark"] .rainbow-spectrum { height: 7px; background: var(--rainbow); }
-:root .challenge-copy h2 span, :root .challenge-distance strong span { color: var(--sport-yellow); }
+/* 42.195 stays one colour (no highlighted decimals) */
+:root .challenge-distance strong span { color: inherit; }
 :root .challenge-pulse { background: var(--sport-orange); box-shadow: 0 0 0 5px rgba(255, 107, 26, .28); }
-:root .hero-motto span { border-color: var(--sport-yellow); color: var(--sport-yellow); }
+:root .hero-motto span { border-color: #8fc1ff; color: #8fc1ff; }
 
 /* ---- Personal best + stat cards: one colour per distance ---- */
 :root .pb-card, :root .stat-card, :root .chart-card, :root .analytics-kpi { transition: transform .2s, box-shadow .2s; }
 :root .pb-card:hover, :root .stat-card:hover, :root .analytics-kpi:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0, 20, 60, .18); }
-:root .full-card::before { height: 6px; background: linear-gradient(90deg, var(--sport-orange), var(--sport-pink)); }
-:root .half-card::before { height: 6px; background: linear-gradient(90deg, var(--sport-green), var(--sport-cyan)); }
-:root .distance-icon.full-icon, :root[data-theme="dark"] .distance-icon.full-icon { background: linear-gradient(135deg, var(--sport-orange), var(--sport-pink)); color: #fff; }
-:root .distance-icon.half-icon, :root[data-theme="dark"] .distance-icon.half-icon { background: linear-gradient(135deg, var(--sport-green), var(--sport-cyan)); color: #fff; }
+:root .full-card::before { height: 6px; background: var(--sport-orange); }
+:root .half-card::before { height: 6px; background: var(--sport-cyan); }
+:root .distance-icon.full-icon, :root[data-theme="dark"] .distance-icon.full-icon { background: var(--sport-orange); color: #fff; }
+:root .distance-icon.half-icon, :root[data-theme="dark"] .distance-icon.half-icon { background: var(--tpm-blue, #00519b); color: #fff; }
 :root .full-card .pb-time { color: #e8590c; }
-:root .half-card .pb-time { color: #0f9d63; }
+:root .half-card .pb-time { color: #00519b; }
 :root[data-theme="dark"] .full-card .pb-time { color: var(--sport-orange); }
-:root[data-theme="dark"] .half-card .pb-time { color: var(--sport-green); }
+:root[data-theme="dark"] .half-card .pb-time { color: #8fc1ff; }
 :root .pb-badge, :root .full-card .pb-badge, :root .half-card .pb-badge, :root[data-theme="dark"] .pb-badge, :root[data-theme="dark"] .full-card .pb-badge, :root[data-theme="dark"] .half-card .pb-badge { background: var(--sport-yellow); color: #3b2a00; }
 
 :root .stat-card:nth-child(1) { border-left-color: var(--sport-orange); }
-:root .stat-card:nth-child(2) { border-left-color: var(--sport-green); }
-:root .stat-card:nth-child(3) { border-left-color: var(--sport-cyan); }
+:root .stat-card:nth-child(2) { border-left-color: var(--sport-cyan); }
+:root .stat-card:nth-child(3) { border-left-color: var(--tpm-grey, #797c81); }
 :root .stat-card:nth-child(1) .stat-value strong { color: #e8590c; }
-:root .stat-card:nth-child(2) .stat-value strong { color: #0f9d63; }
-:root .stat-card:nth-child(3) .stat-value strong, :root .distance-stat .stat-value strong { color: #0f84c4; }
+:root .stat-card:nth-child(2) .stat-value strong { color: #00519b; }
+:root .stat-card:nth-child(3) .stat-value strong, :root .distance-stat .stat-value strong { color: #00519b; }
 :root[data-theme="dark"] .stat-card:nth-child(1) .stat-value strong { color: var(--sport-orange); }
-:root[data-theme="dark"] .stat-card:nth-child(2) .stat-value strong { color: var(--sport-green); }
-:root[data-theme="dark"] .stat-card:nth-child(3) .stat-value strong, :root[data-theme="dark"] .distance-stat .stat-value strong { color: var(--sport-cyan); }
+:root[data-theme="dark"] .stat-card:nth-child(2) .stat-value strong { color: #8fc1ff; }
+:root[data-theme="dark"] .stat-card:nth-child(3) .stat-value strong, :root[data-theme="dark"] .distance-stat .stat-value strong { color: #8fc1ff; }
 :root .stat-icon, :root .stat-icon.peach, :root .stat-icon.mint, :root .stat-icon.blue, :root .distance-stat .stat-icon { color: #fff; }
-:root .stat-icon.peach, :root[data-theme="dark"] .stat-icon.peach { background: linear-gradient(135deg, var(--sport-orange), var(--sport-pink)); color: #fff; }
-:root .stat-icon.mint, :root[data-theme="dark"] .stat-icon.mint { background: linear-gradient(135deg, var(--sport-green), var(--sport-cyan)); color: #fff; }
-:root .stat-icon.blue, :root .distance-stat .stat-icon, :root[data-theme="dark"] .stat-icon.blue, :root[data-theme="dark"] .distance-stat .stat-icon { background: linear-gradient(135deg, var(--sport-cyan), var(--sport-purple)); color: #fff; }
+:root .stat-icon.peach, :root[data-theme="dark"] .stat-icon.peach { background: var(--sport-orange); color: #fff; }
+:root .stat-icon.mint, :root[data-theme="dark"] .stat-icon.mint { background: var(--tpm-blue, #00519b); color: #fff; }
+:root .stat-icon.blue, :root .distance-stat .stat-icon, :root[data-theme="dark"] .stat-icon.blue, :root[data-theme="dark"] .distance-stat .stat-icon { background: var(--tpm-grey, #797c81); color: #fff; }
 .stat-icon .ico { width: 20px; height: 20px; }
 
 /* Extra distances + goals */
-.other-pb-item:nth-child(4n + 1) { border-left-color: var(--sport-cyan); }
-.other-pb-item:nth-child(4n + 2) { border-left-color: var(--sport-purple); }
-.other-pb-item:nth-child(4n + 3) { border-left-color: var(--sport-pink); }
+.other-pb-item:nth-child(n) { border-left-color: var(--tpm-grey, #797c81); }
 .goal-card { border-top-color: var(--sport-orange); }
-.goal-card + .goal-card { border-top-color: var(--sport-green); }
-.goal-bar span { background: linear-gradient(90deg, var(--sport-green), var(--sport-yellow), var(--sport-orange)); }
+.goal-card + .goal-card { border-top-color: var(--sport-cyan); }
+.goal-bar span { background: var(--sport-orange); }
 
 /* ---- Distance chips ---- */
-:root .type-chip.full, :root[data-theme="dark"] .type-chip.full { background: linear-gradient(135deg, var(--sport-orange), var(--sport-pink)); color: #fff; }
-:root .type-chip.half, :root[data-theme="dark"] .type-chip.half { background: linear-gradient(135deg, var(--sport-green), var(--sport-cyan)); color: #fff; }
-:root .type-chip.other, :root[data-theme="dark"] .type-chip.other { background: linear-gradient(135deg, var(--sport-purple), var(--sport-cyan)); color: #fff; }
+:root .type-chip.full, :root[data-theme="dark"] .type-chip.full { background: var(--sport-orange); color: #fff; }
+:root .type-chip.half, :root[data-theme="dark"] .type-chip.half { background: var(--tpm-blue, #00519b); color: #fff; }
+:root .type-chip.other, :root[data-theme="dark"] .type-chip.other { background: var(--tpm-grey, #797c81); color: #fff; }
 
 /* ---- Analytics ---- */
 :root .analytics-kpi:nth-child(1) { border-top-color: var(--sport-orange); }
-:root .analytics-kpi:nth-child(2) { border-top-color: var(--sport-green); }
-:root .analytics-kpi:nth-child(3) { border-top-color: var(--sport-cyan); }
-:root .analytics-kpi:nth-child(4) { border-top-color: var(--sport-purple); }
+:root .analytics-kpi:nth-child(2), :root .analytics-kpi:nth-child(3), :root .analytics-kpi:nth-child(4) { border-top-color: var(--sport-cyan); }
 :root .chart-card { border-top-color: var(--sport-cyan); }
-:root .year-bar-item:nth-child(5n + 1) .year-bar { background: linear-gradient(180deg, var(--sport-orange), var(--sport-pink)); }
-:root .year-bar-item:nth-child(5n + 2) .year-bar { background: linear-gradient(180deg, var(--sport-yellow), var(--sport-orange)); }
-:root .year-bar-item:nth-child(5n + 3) .year-bar { background: linear-gradient(180deg, var(--sport-green), var(--sport-cyan)); }
-:root .year-bar-item:nth-child(5n + 4) .year-bar { background: linear-gradient(180deg, var(--sport-cyan), var(--sport-purple)); }
-:root .year-bar-item:nth-child(5n + 5) .year-bar { background: linear-gradient(180deg, var(--sport-purple), var(--sport-pink)); }
+:root .year-bar-item:nth-child(n) .year-bar { background: linear-gradient(180deg, var(--sport-orange), var(--sport-cyan)); }
 
 /* ---- Pace calculator + race list ---- */
-:root .pace-primary-result { background: linear-gradient(120deg, #001a45, var(--navy, #002158) 40%, var(--sport-orange)); }
-:root .pace-card-icon, :root .pace-card-icon.result-icon, :root .race-summary-icon { background: linear-gradient(135deg, var(--sport-yellow), var(--sport-orange)); color: #fff; }
+:root .pace-primary-result { background: linear-gradient(120deg, #001a45, var(--navy, #002158) 55%, var(--tpm-blue, #00519b)); }
+:root .pace-card-icon, :root .pace-card-icon.result-icon, :root .race-summary-icon { background: var(--tpm-blue, #00519b); color: #fff; }
 :root .race-table-link { color: var(--tpm-blue, #00519b); }
-.race-source-tag { background: linear-gradient(135deg, var(--sport-cyan), var(--sport-purple)); color: #fff; }
+.race-source-tag { background: var(--green-pale); color: var(--green-dark); }
 
 /* Buttons + people */
 :root .button { transition: transform .15s, box-shadow .15s, background .15s; }
 :root .button:hover { transform: translateY(-1px); }
 .countdown-days { color: var(--sport-orange); }
 .fav-button[aria-pressed="true"] { color: var(--sport-yellow); border-color: var(--sport-yellow); }
-:root .people-item .avatar { background: linear-gradient(135deg, var(--sport-orange), var(--sport-pink)); color: #fff; }
-:root .people-item:nth-child(4n + 2) .avatar { background: linear-gradient(135deg, var(--sport-green), var(--sport-cyan)); }
-:root .people-item:nth-child(4n + 3) .avatar { background: linear-gradient(135deg, var(--sport-cyan), var(--sport-purple)); }
-:root .people-item:nth-child(4n + 4) .avatar { background: linear-gradient(135deg, var(--sport-purple), var(--sport-pink)); }
+:root .people-item .avatar { background: var(--tpm-blue, #00519b); color: #fff; }
 
 @media (prefers-reduced-motion: reduce) {
   :root .pb-card:hover, :root .stat-card:hover, :root .analytics-kpi:hover, :root .button:hover { transform: none; }
